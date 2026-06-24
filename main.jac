@@ -1,6 +1,6 @@
 """scrape-byllm: webscraping + data-processing built on byLLM.
 
-Entry point AND the LLM "process layer". Each public function fetches a page
+Entry point and the LLM "process layer". Each public function fetches a page
 deterministically (via scraper.fetch_page) and then uses `by llm()` to turn the
 raw HTML into clean, typed structured data. The function name + signature +
 return type ARE the prompt (Meaning-Typed Programming); the typed return value
@@ -47,11 +47,6 @@ sem Article.text = "The main body text, stripped of nav, ads, and boilerplate.";
 sem Article.title = "The article or page title.";
 
 
-# ---------------------------------------------------------------------------
-# Process layer (byLLM). No bodies -- name + types + sem are the spec.
-# temperature=0.0 keeps extraction deterministic.
-# ---------------------------------------------------------------------------
-
 """Given raw HTML and an instruction, return only the requested information as clean text."""
 def extract(html: str, instruction: str) -> str by llm(temperature=0.0);
 
@@ -64,35 +59,22 @@ def extract_lists(html: str) -> list[list[str]] by llm(temperature=0.0);
 """Return the main readable article/body content, stripped of nav, ads, and boilerplate."""
 def extract_body(html: str) -> Article by llm(temperature=0.0);
 
-
-# ---------------------------------------------------------------------------
-# Public API: fetch (deterministic) -> process (LLM). Composed primitives.
-# ---------------------------------------------------------------------------
-
-"""Fetch a page and extract whatever the natural-language instruction asks for."""
 def scrape(url: str, instruction: str) -> str {
     return extract(fetch_page(url), instruction);
 }
 
-"""Fetch a page and extract all of its data tables as structured Table objects."""
 def get_tables(url: str) -> list[Table] {
     return extract_tables(fetch_page(url));
 }
 
-"""Fetch a page and extract all of its bulleted/numbered lists."""
 def get_lists(url: str) -> list[list[str]] {
     return extract_lists(fetch_page(url));
 }
 
-"""Fetch a page and extract its main article body as a structured Article."""
 def get_body(url: str) -> Article {
     return extract_body(fetch_page(url));
 }
 
-
-# ---------------------------------------------------------------------------
-# Demo
-# ---------------------------------------------------------------------------
 
 with entry {
     load_dotenv();
