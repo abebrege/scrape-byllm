@@ -15,6 +15,7 @@ Run with:  jac run main.jac
 """
 
 import from byllm.lib { Model }
+import from dotenv { load_dotenv }
 import from scraper { fetch_page }
 
 glob llm = Model(model_name="anthropic/claude-sonnet-4-6");
@@ -94,6 +95,8 @@ def get_body(url: str) -> Article {
 # ---------------------------------------------------------------------------
 
 with entry {
+    load_dotenv();
+
     wiki = "https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population";
 
     print("=== scrape (free-form instruction) ===");
