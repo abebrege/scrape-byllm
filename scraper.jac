@@ -24,7 +24,9 @@ def fetch_page(url: str) -> str {
     resp = requests.get(url, headers={"User-Agent": "scrape-byllm/0.1"}, timeout=30);
     resp.raise_for_status();
     soup = BeautifulSoup(resp.text, "html.parser");
-    for tag in soup(["script", "style", "noscript"]) {
+    # opt out of static type checking until jac supports bs4 types
+    noise: any = soup(["script", "style", "noscript"]);
+    for tag in noise {
         tag.decompose();
     }
     html = str(soup);
