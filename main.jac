@@ -21,10 +21,7 @@ import from scraper { fetch_page }
 glob llm = Model(model_name="anthropic/claude-sonnet-4-6");
 
 
-# ---------------------------------------------------------------------------
-# Return types -- double as enforced output schemas. The `sem` annotations are
-# the main quality lever for steering extraction.
-# ---------------------------------------------------------------------------
+# `sem` annotation are used to steer the model's output to be more accurate and consistent with the intended meaning of the type
 
 obj Table {
     has headers: list[str];
