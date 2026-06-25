@@ -210,23 +210,23 @@ with entry {
         print("first row:", tables[0].rows[0] if tables[0].rows else "(none)");
     }
 
-    print("\n=== get_lists ===");
-    lists = get_lists("https://en.wikipedia.org/wiki/Web_scraping");
-    print(f"found {len(lists)} list(s)");
-    if lists {
-        print("first list (up to 5 items):", lists[0][:5]);
-    }
+    # print("\n=== get_lists ===");
+    # lists = get_lists("https://en.wikipedia.org/wiki/Web_scraping");
+    # print(f"found {len(lists)} list(s)");
+    # if lists {
+    #     print("first list (up to 5 items):", lists[0][:5]);
+    # }
 
-    print("\n=== get_body ===");
-    article = get_body("https://example.com");
-    print("title:", article.title);
-    print("text:", article.text);
+    # print("\n=== get_body ===");
+    # article = get_body("https://example.com");
+    # print("title:", article.title);
+    # print("text:", article.text);
 
-    print("\n=== grab_by_query (single) ===");
-    print(json.dumps(grab_by_query("https://example.com", "what is the title of this page?"), indent=2));
+    # print("\n=== grab_by_query (single) ===");
+    # print(json.dumps(grab_by_query("https://example.com", "what is the title of this page?"), indent=2));
 
-    print("\n=== grab_by_query (list) ===");
-    print(json.dumps(grab_by_query(wiki, "all the external links on this page"), indent=2));
+    # print("\n=== grab_by_query (list) ===");
+    # print(json.dumps(grab_by_query(wiki, "all the external links on this page"), indent=2));
 
     quit_driver();
 }
