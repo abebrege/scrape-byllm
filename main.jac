@@ -20,7 +20,7 @@ Run with:  jac run main.jac
 import json;
 import from byllm.lib { Model }
 import from dotenv { load_dotenv }
-import from scraper { fetch_page, quit_driver }
+import from lib.scraper { fetch_page, quit_driver }
 import from lib.selenium_abs {
     get_links, get_link_texts, get_paragraphs, get_headings,
     get_list_items, get_table_rows, get_images, get_buttons,
@@ -67,8 +67,45 @@ def extract_lists(html: str) -> list[list[str]] by llm(temperature=0.0);
 """Return the main readable article/body content, stripped of nav, ads, and boilerplate."""
 def extract_body(html: str) -> Article by llm(temperature=0.0);
 
-def scrape(url: str, instruction: str) -> str {
-    return extract(fetch_page(url), instruction);
+# Public interface: infers the right extraction strategy from the query via
+# byLLM, then delegates to the appropriate lib helper and returns clean text.
+def scrape(url: str, query: str) -> str {
+    target = choose_target(query);
+
+    # Full-page HTML → LLM extraction for content best read as prose or code.
+    if target == Target.CODE_SNIPPETS or target == Target.BODY_TEXT {
+        return extract(fetch_page(url), query);
+    }
+
+    # Structured table extraction → formatted text.
+    if target == Target.TABLE_ROWS {
+        tables: list[Table] = extract_tables(fetch_page(url));
+        lines: list[str] = [];
+        for t in tables {
+            lines.append(" | ".join(t.headers));
+            for row in t.rows {
+                lines.append(" | ".join(row));
+            }
+            lines.append("");
+        }
+        return "\n".join(lines);
+    }
+
+    # Selenium element extraction + LLM filtering for everything else.
+    raw: list[str] = dispatch(target, url, query);
+    capped: list[str] = [];
+    for s in raw[:300] {
+        if len(s) > 500 {
+            capped.append(s[:500]);
+        } else {
+            capped.append(s);
+        }
+    }
+
+    if target == Target.TITLE or not expects_list(query) {
+        return pick_one(query, capped);
+    }
+    return "\n".join(filter_items(query, capped));
 }
 
 def get_tables(url: str) -> list[Table] {
@@ -100,7 +137,8 @@ enum Target {
     TITLE,
     BODY_TEXT,
     BY_CSS,
-    BY_XPATH
+    BY_XPATH,
+    CODE_SNIPPETS
 }
 
 sem Target.LINKS = "All hyperlink URLs (href) on the page. Use when the user wants links or URLs.";
@@ -115,6 +153,7 @@ sem Target.TITLE = "The single page title string. Use when the user wants the pa
 sem Target.BODY_TEXT = "The entire visible page text as one string. Use as a broad fallback for open-ended content questions.";
 sem Target.BY_CSS = "Generic CSS-selector fetch. Use when the user names a specific element, class, or selector not covered by other options.";
 sem Target.BY_XPATH = "Generic XPath fetch. Use when the query requires structural or positional element selection.";
+sem Target.CODE_SNIPPETS = "Code examples, code blocks, or programming snippets on the page. Use when the user wants code, samples, or technical demos.";
 
 
 """Pick the single best page-extraction target for the user's natural-language query."""
@@ -197,18 +236,9 @@ def grab_by_query(url: str, query: str) -> list[any] {
 with entry {
     load_dotenv();
 
-    wiki = "https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population";
+    url = "https://doc.rust-lang.org/book/ch03-01-variables-and-mutability.html";
 
-    print("=== scrape (free-form instruction) ===");
-    print(scrape(wiki, "the title of the page"));
-
-    print("\n=== get_tables ===");
-    tables = get_tables(wiki);
-    print(f"found {len(tables)} table(s)");
-    if tables {
-        print("headers:", tables[0].headers);
-        print("first row:", tables[0].rows[0] if tables[0].rows else "(none)");
-    }
+    print(scrape(url, "the code snippets from this page, as clean text"));
 
     # print("\n=== get_lists ===");
     # lists = get_lists("https://en.wikipedia.org/wiki/Web_scraping");

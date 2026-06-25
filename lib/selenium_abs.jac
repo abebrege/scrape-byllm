@@ -15,7 +15,7 @@ as crisp descriptions of *what data the function yields*, not how it works.
 """
 
 import from selenium.webdriver.common.by { By }
-import from scraper { get_driver }
+import from lib.scraper { get_driver }
 
 
 # ── private helpers ────────────────────────────────────────────────────────────
