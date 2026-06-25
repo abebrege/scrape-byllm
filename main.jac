@@ -16,7 +16,7 @@ Run with:  jac run main.jac
 
 import from byllm.lib { Model }
 import from dotenv { load_dotenv }
-import from scraper { fetch_page }
+import from scraper { fetch_page, quit_driver }
 
 glob llm = Model(model_name="anthropic/claude-sonnet-4-6");
 
@@ -100,4 +100,6 @@ with entry {
     article = get_body("https://example.com");
     print("title:", article.title);
     print("text:", article.text);
+
+    quit_driver();
 }
