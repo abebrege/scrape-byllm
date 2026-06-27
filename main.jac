@@ -14,6 +14,9 @@ import from lib.regexes { preset_table }
 import from lib.executor { extract, dedup }
 import from lib.fetch { fetch_one, normalize_source }
 import from lib.scraper { quit_driver }
+import from sys { argv }
+import from os { makedirs }
+import from json { dumps }
 
 glob llm = Model(model_name="anthropic/claude-sonnet-4-6");
 
@@ -200,14 +203,31 @@ def get_all_code(source: any, query: str = "", opts: dict = {}) -> dict {
 }
 
 
+def _resolve_output_path(args: list[str]) -> str {
+    makedirs("data", exist_ok=True);
+    i: int = 0;
+    while i < len(args) {
+        if args[i] in ["--output", "-o"] and i + 1 < len(args) {
+            return str(args[i + 1]);
+        }
+        i += 1;
+    }
+    return "data/out.json";
+}
+
 with entry {
     load_dotenv();
 
     out = get_all_prices(
-        source="https://coinmarketcap.com",
-        query="Bitcoin spot price"
+        source="https://docs.oracle.com/javase/8/docs/api/javax/crypto/package-summary.html",
+        query="get all crypto modules exposed by this library"
     );
-    print(out);
+
+    out_path: str = _resolve_output_path(argv);
+    with open(out_path, "w") as f {
+        f.write(dumps(out, indent=2));
+    }
+    print("wrote", len(str(out)), "chars to", out_path);
 
     quit_driver();
 }
