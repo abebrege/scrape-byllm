@@ -10,7 +10,7 @@ Cost guarantee: scraping N pages = 1 planning call + (N-1) pure-regex
 executions. Synthesis, when enabled, adds at most 1 further call.
 """
 
-import from byLLM.lib { Model }
+import from byllm.lib { Model }
 import from scrape_byLLM.presets { preset_table }
 
 glob llm = Model(model_name="anthropic/claude-sonnet-4-6");
