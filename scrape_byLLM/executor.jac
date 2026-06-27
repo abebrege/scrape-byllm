@@ -1,7 +1,3 @@
-# TODO: `compile`, `IGNORECASE`, and `sub` come from Python's stdlib `re`, which
-# Jac resolves dynamically at runtime — they arrive untyped (as `any`). That's why
-# the checker can't verify their signatures, and why downstream values such as
-# `compile(...).finditer(...)` and `sub(...).strip()` also fall back to `any`.
 import from re { compile, IGNORECASE, sub }
 import from bs4 { BeautifulSoup }
 
@@ -12,7 +8,7 @@ def strip_to_text(html: str) -> str {
         el.decompose();
     }
     raw: str = str(soup.get_text(separator=" "));
-    return sub("\\s+", " ", raw).strip();
+    return str(sub("\\s+", " ", raw)).strip();
 }
 
 
@@ -45,6 +41,7 @@ def extract(plan: any, html: str) -> list[str] {
         if not pat {
             continue;
         }
+        # needs resolution: No matching overload found for the function call with the given argumentsjac(E1054)
         rx: any = compile(pat, IGNORECASE);
         it: any = rx.finditer(haystack);
         for m in it {
