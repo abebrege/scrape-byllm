@@ -1,4 +1,4 @@
-"""Page acquisition for scrape-byllm.
+"""Page acquisition for scrape-byLLM.
 
 One module owns every way a page can enter the pipeline, plus the browser
 lifecycle (previously split across fetch.jac + scraper.jac):
@@ -29,7 +29,7 @@ def _get_driver() -> any {
         opts.add_argument("--disable-dev-shm-usage");
         opts.add_argument("--disable-gpu");
         opts.add_argument("--window-size=1920,1080");
-        opts.add_argument("--user-agent=scrape-byllm/0.1");
+        opts.add_argument("--user-agent=scrape-byLLM/0.1");
         driver: any = webdriver.Chrome(options=opts);
         driver.set_page_load_timeout(30);
         _driver_holder.append(driver);
@@ -54,7 +54,7 @@ def _http_get(url: str, timeout: int) -> str {
     resp: any = get(
         url,
         timeout=timeout,
-        headers={"User-Agent": "scrape-byllm/0.2"}
+        headers={"User-Agent": "scrape-byLLM/0.2"}
     );
     return str(resp.text);
 }

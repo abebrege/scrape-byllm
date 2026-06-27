@@ -1,4 +1,4 @@
-"""Orchestration and public API for scrape-byllm.
+"""Orchestration and public API for scrape-byLLM.
 
 spawn_scrape is the one engine: it normalizes the source, compiles a RegexPlan
 from a single LLM call (only when a query is given), then applies that plan
@@ -14,10 +14,10 @@ Other opts: render (selenium), timeout (seconds), dedup (default True).
 The get_all_* family are thin presets over spawn_scrape, one per `thing`.
 """
 
-import from scrape_byllm.fetch { fetch_one, normalize_source, quit_driver }
-import from scrape_byllm.executor { extract, dedup }
-import from scrape_byllm.planner { get_plan, preset_plan, synthesize_results }
-import from scrape_byllm.output { write_output }
+import from scrape_byLLM.fetch { fetch_one, normalize_source, quit_driver }
+import from scrape_byLLM.executor { extract, dedup }
+import from scrape_byLLM.planner { get_plan, preset_plan, synthesize_results }
+import from scrape_byLLM.output { write_output }
 
 
 def spawn_scrape(thing: str, source: any, query: str, opts: dict) -> dict {

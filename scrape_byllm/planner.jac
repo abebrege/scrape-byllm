@@ -1,4 +1,4 @@
-"""The LLM brain of scrape-byllm.
+"""The LLM brain of scrape-byLLM.
 
 Everything that talks to the model lives here:
   - compile_query_to_plan: turns a natural-language query into a reusable RegexPlan
@@ -10,8 +10,8 @@ Cost guarantee: scraping N pages = 1 planning call + (N-1) pure-regex
 executions. Synthesis, when enabled, adds at most 1 further call.
 """
 
-import from byllm.lib { Model }
-import from scrape_byllm.presets { preset_table }
+import from byLLM.lib { Model }
+import from scrape_byLLM.presets { preset_table }
 
 glob llm = Model(model_name="anthropic/claude-sonnet-4-6");
 

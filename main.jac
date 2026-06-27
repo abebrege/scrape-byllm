@@ -7,7 +7,7 @@ persist the result, and opts={"synthesize": True} for an extra LLM pass.
 """
 
 import from dotenv { load_dotenv }
-import from scrape_byllm.scraper { get_all_prices, quit_driver }
+import from scrape_byLLM.scraper { get_all_prices, quit_driver }
 
 
 with entry {
