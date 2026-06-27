@@ -1,17 +1,3 @@
-"""Page acquisition for scrape-byLLM.
-
-One module owns every way a page can enter the pipeline, plus the browser
-lifecycle (previously split across fetch.jac + scraper.jac):
-
-  - Static  (render=False): requests.get — fast, no browser, server-rendered pages.
-  - Rendered (render=True): a headless-Chrome singleton — JS-heavy / dynamic pages.
-
-normalize_source() collapses any supported source form (URL, list of URLs, raw
-HTML, or plain text) into a uniform list of source dicts:
-  {"url": str, "html": str}   — html is "" when a URL must be fetched,
-                                 url is "" when html is provided inline.
-"""
-
 import from requests { get }
 import from selenium { webdriver }
 import from selenium.webdriver.chrome.options { Options }

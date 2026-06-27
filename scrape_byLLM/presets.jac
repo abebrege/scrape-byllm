@@ -1,9 +1,3 @@
-"""Built-in regex presets, keyed by `thing`.
-
-These are the deterministic fallbacks the executor runs when no LLM query is
-given, and the menu the planner chooses from when one is. Pure data, no IO.
-"""
-
 def preset_table() -> dict[str, str] {
     return {
         "links":      "<a\\b[^>]*?href=[\"']([^\"']+)[\"']",

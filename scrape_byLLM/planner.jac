@@ -1,15 +1,3 @@
-"""The LLM brain of scrape-byLLM.
-
-Everything that talks to the model lives here:
-  - compile_query_to_plan: turns a natural-language query into a reusable RegexPlan
-    (called ONCE per (thing, query) pair, then cached).
-  - synthesize_results: optional second pass that reads the raw snippets and
-    extracts the information the user actually asked for.
-
-Cost guarantee: scraping N pages = 1 planning call + (N-1) pure-regex
-executions. Synthesis, when enabled, adds at most 1 further call.
-"""
-
 import from byllm.lib { Model }
 import from scrape_byLLM.presets { preset_table }
 

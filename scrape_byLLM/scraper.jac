@@ -1,19 +1,3 @@
-"""Orchestration and public API for scrape-byLLM.
-
-spawn_scrape is the one engine: it normalizes the source, compiles a RegexPlan
-from a single LLM call (only when a query is given), then applies that plan
-deterministically to every page. Two opt-in hooks ride on the same call:
-
-  opts["synthesize"]: bool        -> run one extra LLM pass over the snippets,
-                                     attaching a structured "synthesis" block.
-  opts["output"]: str | bool      -> also write the result dict to disk as JSON
-                                     (see output.write_output). Default: no write.
-
-Other opts: render (selenium), timeout (seconds), dedup (default True).
-
-The get_all_* family are thin presets over spawn_scrape, one per `thing`.
-"""
-
 import from scrape_byLLM.fetch { fetch_one, normalize_source, quit_driver }
 import from scrape_byLLM.executor { extract, dedup }
 import from scrape_byLLM.planner { get_plan, preset_plan, synthesize_results }
