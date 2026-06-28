@@ -101,7 +101,7 @@ def _collect_snippets(out: dict[str, any]) -> str {
 }
 
 
-class ScrapeByLLM {
+obj ScrapeByLLM {
     has _env: dict = {};
 
     def postinit() {
