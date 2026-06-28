@@ -55,8 +55,8 @@ with entry {
     scraper.set("output", "data/out.json");
 
     out: dict = scraper.get_all_prices(
-        source="https://example.com",
-        query="get all crypto modules exposed by this library"
+        source="https://en.wikipedia.org/wiki/Population_density",
+        query="return the population of each country from the tables on this page"
     );
     print(out);
 
