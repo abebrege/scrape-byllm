@@ -101,9 +101,7 @@ def _collect_snippets(out: dict[str, any]) -> str {
 }
 
 
-"""Stateful scraper. Configure with .set(), then call .get_all_*() for each
-target — the compiled plan is reused across pages without further LLM calls."""
-obj ScrapeByLLM {
+class ScrapeByLLM {
     has _env: dict = {};
 
     def postinit() {
