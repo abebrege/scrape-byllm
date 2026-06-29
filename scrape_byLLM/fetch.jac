@@ -4,6 +4,7 @@ import from selenium { webdriver }
 import from selenium.webdriver.chrome.options { Options }
 import from time { time, sleep }
 import from scrape_byLLM.robots { is_allowed, get_crawl_delay }
+import from scrape_byLLM.guard_fetch { SSRFError, guarded_http_get, guarded_selenium_get }
 
 glob _driver_holder: list[any] = [];
 glob _last_request_time: list[float] = [0.0];
@@ -27,44 +28,9 @@ def _get_driver() -> any {
 }
 
 
-def _fetch_rendered(url: str, max_chars: int = 40000) -> str {
-    driver: any = _get_driver();
-    driver.get(url);
-    clean_js = "for (const el of document.querySelectorAll('script, style, noscript')) { el.remove(); } return document.documentElement.outerHTML;";
-    html: str = str(driver.execute_script(clean_js));
-    if len(html) > max_chars {
-        return html[:max_chars];
-    }
-    return html;
-}
-
-
 def _http_get(url: str, timeout: int, headers: dict, max_retries: int = 3) -> str {
-    delay: float = 1.0;
-    last_exc: any = None;
-
-    for attempt in range(max_retries) {
-        try {
-            resp: any = get(url, timeout=timeout, headers=headers);
-            if resp.status_code in _RETRYABLE and attempt < max_retries - 1 {
-                sleep(delay);
-                delay = delay * 2.0;
-                continue;
-            }
-            resp.raise_for_status();
-            return str(resp.text);
-        } except RequestException as e {
-            last_exc = e;
-            if attempt < max_retries - 1 {
-                sleep(delay);
-                delay = delay * 2.0;
-            }
-        }
-    }
-    if last_exc is not None {
-        raise last_exc;
-    }
-    return "";
+    ctx: dict = {"ssrf_protection": False};
+    return guarded_http_get(url, ctx, headers, timeout, max_retries);
 }
 
 
@@ -80,11 +46,12 @@ def fetch_one(
     url: str,
     render: bool = False,
     timeout: int = 20,
-    max_chars: int = 40000,
+    max_chars: int = 200000,
     respect_robots: bool = True,
     user_agent: str = "scrape-byLLM",
     extra_headers: dict = {},
-    rate_limit: float = 0.0
+    rate_limit: float = 0.0,
+    _ctx: any = None
 ) -> str {
     if not is_allowed(url, user_agent, respect_robots, timeout) {
         raise ValueError("Blocked by robots.txt: " + url);
@@ -104,13 +71,19 @@ def fetch_one(
     }
     _last_request_time[0] = time();
 
+    ctx: dict = {"ssrf_protection": True};
+    if isinstance(_ctx, dict) {
+        ctx = _ctx;
+    }
+
     if render {
-        return _fetch_rendered(url, max_chars);
+        driver: any = _get_driver();
+        return guarded_selenium_get(url, driver, ctx, max_chars);
     }
 
     headers: dict = {"User-Agent": user_agent};
     headers.update(extra_headers);
-    raw: str = _http_get(url, timeout, headers);
+    raw: str = guarded_http_get(url, ctx, headers, timeout);
     if len(raw) > max_chars {
         return raw[:max_chars];
     }
@@ -118,7 +91,7 @@ def fetch_one(
 }
 
 
-def fetch_many(urls: list[str], render: bool = False, timeout: int = 20, max_chars: int = 40000) -> list[dict] {
+def fetch_many(urls: list[str], render: bool = False, timeout: int = 20, max_chars: int = 200000) -> list[dict] {
     results: list[dict] = [];
     for url in urls {
         html: str = fetch_one(url, render, timeout, max_chars);

@@ -18,6 +18,23 @@ class TestInstantiation:
         assert s.get("user_agent") == "scrape-byLLM"
         assert s.get("extra_headers") == {}
         assert s.get("rate_limit") == 0.0
+        # Phase 1 — SSRF
+        assert s.get("ssrf_protection") is True
+        assert s.get("allow_private_ips") is False
+        assert s.get("allowed_hosts") == []
+        assert s.get("blocked_hosts") == []
+        # Phase 2 — Cache
+        assert s.get("cache") == "off"
+        assert s.get("cache_dir") == ".scrape_cache"
+        assert s.get("cache_ttl") == 0
+        assert s.get("cache_llm") is True
+        # Phase 3 — Proxy
+        assert s.get("proxies") == []
+        assert s.get("proxy_rotation") == "round_robin"
+        assert s.get("proxy_max_failures") == 3
+        # Phase 4 — Injection guard
+        assert s.get("injection_guard") is True
+        assert s.get("regex_timeout") == 1.0
 
     def test_custom_kwargs(self) -> None:
         s = ScrapeByLLM(window=100, timeout=30, user_agent="my-bot")
@@ -113,11 +130,12 @@ class TestPresetScraping:
         assert len(result["results"]) == 2
 
     def test_result_shape(self) -> None:
-        s = ScrapeByLLM(respect_robots=False)
+        s = ScrapeByLLM(respect_robots=False, ssrf_protection=False)
         result = s.get_all_emails(source="test@x.com")
         expected_keys = (
             "pattern", "query", "strategy", "on",
             "patterns", "page_count", "llm_calls", "results",
+            "fetch_hits", "fetch_misses", "blocked_urls", "pages_crawled",
         )
         for key in expected_keys:
             assert key in result, f"missing key: {key}"

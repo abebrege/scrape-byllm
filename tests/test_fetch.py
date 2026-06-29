@@ -93,7 +93,8 @@ class TestFetchOne:
             body="User-agent: *\nAllow: /\n", status=200,
         )
         resp_lib.add(resp_lib.GET, "https://example.com", body="<html>hello</html>", status=200)
-        result = fetch_one("https://example.com", respect_robots=True)
+        result = fetch_one("https://example.com", respect_robots=True,
+                           _ctx={"ssrf_protection": False})
         assert "hello" in result
 
     @resp_lib.activate
@@ -111,13 +112,15 @@ class TestFetchOne:
     def test_respect_robots_false_skips_check(self) -> None:
         # No robots.txt response registered — would fail if fetched.
         resp_lib.add(resp_lib.GET, "https://example.com", body="<html>data</html>", status=200)
-        result = fetch_one("https://example.com", respect_robots=False)
+        result = fetch_one("https://example.com", respect_robots=False,
+                           _ctx={"ssrf_protection": False})
         assert "data" in result
 
     @resp_lib.activate
     def test_max_chars_truncates(self) -> None:
         resp_lib.add(resp_lib.GET, "https://example.com", body="A" * 1000, status=200)
-        result = fetch_one("https://example.com", respect_robots=False, max_chars=100)
+        result = fetch_one("https://example.com", respect_robots=False, max_chars=100,
+                           _ctx={"ssrf_protection": False})
         assert len(result) == 100
 
     def test_rate_limiting_sleeps(self) -> None:
@@ -137,6 +140,7 @@ class TestFetchOne:
                     "https://example.com",
                     respect_robots=False,
                     rate_limit=1.0,
+                    _ctx={"ssrf_protection": False},
                 )
         mock_sleep.assert_called_once()
         delay_arg = mock_sleep.call_args[0][0]

@@ -1,13 +1,12 @@
 import from scrape_byLLM.fetch { fetch_one, normalize_source, quit_driver }
 import from scrape_byLLM.executor { extract, dedup }
-import from scrape_byLLM.planner { get_plan, preset_plan, synthesize_results, choose_pattern }
+import from scrape_byLLM.planner { get_plan, preset_plan, choose_pattern, guarded_synthesize_results }
 import from scrape_byLLM.presets { preset_table }
 import from scrape_byLLM.output { write_output }
 
 
 def spawn_scrape(pattern: str, source: any, query: str, opts: dict) -> dict {
     sources: list[dict] = normalize_source(source);
-    llm_calls: int = 0;
     plan: any = preset_plan(pattern);
     results: list = [];
 
@@ -19,8 +18,7 @@ def spawn_scrape(pattern: str, source: any, query: str, opts: dict) -> dict {
         try {
             first_html: str = _get_html(first_src, opts);
             if query {
-                plan = get_plan(pattern, query, first_html, html_sample_size);
-                llm_calls = 1;
+                plan = get_plan(pattern, query, first_html, html_sample_size, opts);
             }
             first_snippets: list[str] = extract(plan, first_html, window);
             if bool(opts.get("dedup", True)) {
@@ -53,13 +51,17 @@ def spawn_scrape(pattern: str, source: any, query: str, opts: dict) -> dict {
         "on":           plan.on,
         "patterns":     plan.patterns,
         "page_count":   len(sources),
-        "llm_calls":    llm_calls,
+        "llm_calls":    int(opts.get("_llm_calls", 0)),
+        "fetch_hits":   int(opts.get("fetch_hits", 0)),
+        "fetch_misses": int(opts.get("fetch_misses", 0)),
+        "blocked_urls": int(opts.get("blocked_urls", 0)),
+        "pages_crawled": int(opts.get("_pages_crawled", 0)),
         "results":      results
     };
 
     if bool(opts.get("synthesize", False)) {
         flat: str = _collect_snippets(out);
-        synthesis: any = synthesize_results(query, pattern, flat);
+        synthesis: any = guarded_synthesize_results(query, pattern, flat, opts);
         out["synthesis"] = {
             "summary": synthesis.summary,
             "items":   synthesis.items,
@@ -83,9 +85,10 @@ def _get_html(src: any, opts: dict) -> str {
     respect_robots: bool = bool(opts.get("respect_robots", True));
     user_agent: str = str(opts.get("user_agent", "scrape-byLLM"));
     extra_headers: dict = dict(opts.get("extra_headers", {}));
-    rate_limit: float = float(opts.get("rate_limit", 0.0));
+    rate_limit_raw: any = opts.get("rate_limit", 0.0);
+    rate_limit: float = float(str(rate_limit_raw));
     url: str = str(src.get("url", ""));
-    return fetch_one(url, render, timeout, max_chars, respect_robots, user_agent, extra_headers, rate_limit);
+    return fetch_one(url, render, timeout, max_chars, respect_robots, user_agent, extra_headers, rate_limit, opts);
 }
 
 
@@ -118,18 +121,31 @@ obj ScrapeByLLM {
 
     def postinit() {
         self._env = {
-            "window":           200,
-            "max_chars":        40000,
-            "timeout":          20,
-            "render":           False,
-            "dedup":            True,
-            "synthesize":       False,
-            "output":           None,
-            "html_sample_size": 6000,
-            "respect_robots":   True,
-            "user_agent":       "scrape-byLLM",
-            "extra_headers":    {},
-            "rate_limit":       0.0,
+            "window":             200,
+            "max_chars":          200000,
+            "timeout":            20,
+            "render":             False,
+            "dedup":              True,
+            "synthesize":         False,
+            "output":             None,
+            "html_sample_size":   6000,
+            "respect_robots":     True,
+            "user_agent":         "scrape-byLLM",
+            "extra_headers":      {},
+            "rate_limit":         0.0,
+            "ssrf_protection":    True,
+            "allow_private_ips":  False,
+            "allowed_hosts":      [],
+            "blocked_hosts":      [],
+            "cache":              "off",
+            "cache_dir":          ".scrape_cache",
+            "cache_ttl":          0,
+            "cache_llm":          True,
+            "proxies":            [],
+            "proxy_rotation":     "round_robin",
+            "proxy_max_failures": 3,
+            "injection_guard":    True,
+            "regex_timeout":      1.0,
         };
     }
 
@@ -192,7 +208,7 @@ obj ScrapeByLLM {
 }
 
 sem ScrapeByLLM = "Stateful scraper instance. Configure once with .set(), then call .get_all_*() for each target — the compiled plan is reused across pages.";
-sem ScrapeByLLM._env = "Runtime configuration. Keys: window, max_chars, timeout, render, dedup, synthesize, output, html_sample_size, respect_robots, user_agent, extra_headers, rate_limit.";
+sem ScrapeByLLM._env = "Runtime configuration. Keys: window, max_chars, timeout, render, dedup, synthesize, output, html_sample_size, respect_robots, user_agent, extra_headers, rate_limit, ssrf_protection, allow_private_ips, allowed_hosts, blocked_hosts, cache, cache_dir, cache_ttl, cache_llm, proxies, proxy_rotation, proxy_max_failures, injection_guard, regex_timeout.";
 
 
 def get_all(pattern: str, source: any, query: str = "", opts: dict = {}) -> dict {

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>scrape-byLLM — Reference Documentation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      color: #1a1a1a;
+      background: #fff;
+      display: flex;
+    }
+
+    nav {
+      width: 220px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      border-right: 1px solid #e5e7eb;
+      padding: 32px 16px;
+      background: #f9fafb;
+    }
+
+    nav h2 {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 12px;
+    }
+
+    nav ol {
+      list-style: none;
+      counter-reset: nav;
+    }
+
+    nav ol li {
+      counter-increment: nav;
+      margin-bottom: 4px;
+    }
+
+    nav ol li a {
+      display: block;
+      font-size: 13px;
+      color: #374151;
+      text-decoration: none;
+      padding: 3px 6px;
+      border-radius: 4px;
+    }
+
+    nav ol li a:hover { background: #e5e7eb; color: #111; }
+
+    main {
+      flex: 1;
+      min-width: 0;
+      max-width: 860px;
+      padding: 48px 56px;
+    }
+
+    h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    h2 { font-size: 20px; font-weight: 700; margin: 48px 0 16px; padding-top: 8px; border-top: 1px solid #e5e7eb; }
+    h3 { font-size: 16px; font-weight: 600; margin: 28px 0 10px; color: #111; }
+
+    p { margin-bottom: 14px; }
+
+    a { color: #2563eb; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    code {
+      font-family: "SF Mono", "Fira Code", Consolas, monospace;
+      font-size: 13px;
+      background: #f3f4f6;
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: #374151;
+    }
+
+    pre {
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 16px;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #1a1a1a;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13.5px;
+    }
+
+    th {
+      text-align: left;
+      padding: 8px 12px;
+      background: #f3f4f6;
+      border-bottom: 2px solid #d1d5db;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    ul, ol { margin: 10px 0 14px 20px; }
+    li { margin-bottom: 4px; }
+
+    hr { border: none; border-top: 1px solid #e5e7eb; margin: 40px 0; }
+
+    .note {
+      background: #eff6ff;
+      border-left: 3px solid #3b82f6;
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#constructor">Constructor</a></li>
+    <li><a href="#extraction-methods">Extraction methods</a></li>
+    <li><a href="#crawl">crawl()</a></li>
+    <li><a href="#result-shape">Result shape</a></li>
+    <li><a href="#configuration">Configuration reference</a></li>
+    <li><a href="#ssrf">SSRF protection</a></li>
+    <li><a href="#caching">Response caching</a></li>
+    <li><a href="#proxy">Proxy rotation</a></li>
+    <li><a href="#injection">Prompt-injection mitigation</a></li>
+    <li><a href="#robots">robots.txt</a></li>
+    <li><a href="#errors">Error handling</a></li>
+  </ol>
+</nav>
+
+<main>
+  <h1>scrape-byLLM</h1>
+  <p>Reference Documentation</p>
+
+  <h2 id="architecture">Architecture</h2>
+  <pre><code>ScrapeByLLM.get_all_*()
+      │
+      ▼
+ normalize_source()          # URL / HTML / list → [{url, html}]
+      │
+      ▼
+  fetch_one()                # robots check → rate limit → guarded_http_get / guarded_selenium_get
+      │
+      ├─ cache_get_http()    # check on-disk HTTP cache
+      ├─ validate_url_ssrf() # SSRF gate (scheme, hostname, IP)
+      ├─ get_proxy()         # select proxy (round_robin / random / sticky)
+      └─ cache_put_http()    # write on-disk HTTP cache
+      │
+      ▼
+  get_plan()                 # preset regex OR LLM-compiled plan (one call, reused)
+      │
+      ├─ check_injection()   # scan HTML sample for injection markers
+      ├─ cache_get_llm()     # check on-disk LLM cache
+      ├─ compile_query_to_plan() (by llm)
+      ├─ validate_regex_plan() # drop invalid / ReDoS patterns
+      └─ cache_put_llm()
+      │
+      ▼
+  extract() + dedup()        # run regexes, optional dedup
+      │
+      ▼
+  guarded_synthesize_results() (optional, by llm)
+      │
+  write_output()             # return dict; optionally write JSON to disk</code></pre>
+  <p>The <code>crawl()</code> path adds a BFS loop around <code>fetch_one()</code> + <code>extract()</code>, with SSRF validation on every discovered link before it is enqueued.</p>
+
+  <h2 id="constructor">ScrapeByLLM constructor</h2>
+  <pre><code>from scrape_byLLM import ScrapeByLLM
+
+scraper = ScrapeByLLM(
+    # All parameters are keyword-only. See Configuration reference for full list.
+    render=False,
+    timeout=20,
+    cache="readwrite",
+    ssrf_protection=True,
+)</code></pre>
+  <p>All parameters have defaults. Call <code>.set(key, value)</code> / <code>.get(key)</code> after construction to read or change any setting.</p>
+  <p>Use as a context manager to auto-release the browser driver:</p>
+  <pre><code>with ScrapeByLLM(render=True) as scraper:
+    result = scraper.get_all_links("https://example.com")</code></pre>
+
+  <h2 id="extraction-methods">Extraction methods</h2>
+  <p>All methods return a <a href="#result-shape">result dict</a>.</p>
+
+  <h3><code>get_all(source, query="")</code></h3>
+  <p>Picks the best preset pattern for <code>query</code> via a quick LLM call, then runs that pattern's preset regexes. Useful when you are unsure which pattern fits.</p>
+
+  <h3><code>get_all_links / images / emails / phones / prices / tables / headings / text / charts / code</code></h3>
+  <pre><code>result = scraper.get_all_emails(source="https://example.com/contact")
+
+# Override with a custom plan
+result = scraper.get_all_emails(
+    source="https://example.com",
+    query="only corporate email addresses ending in @corp.example.com",
+)</code></pre>
+  <ul>
+    <li><code>source</code> — <code>str | list[str]</code>. Each string can be a URL (<code>http://…</code> / <code>https://…</code>), raw HTML, or plain text. Mixed lists are fine.</li>
+    <li><code>query</code> — optional. When provided, one LLM call compiles a custom <code>RegexPlan</code> that is reused for all pages in <code>source</code>. When omitted, the built-in preset is used and no LLM call is made.</li>
+  </ul>
+
+  <h2 id="crawl">crawl()</h2>
+  <p>BFS crawl starting from a seed URL, applying the same extraction pipeline to every visited page.</p>
+  <pre><code>result = scraper.crawl(
+    seed="https://example.com/blog",
+    query="product launch announcements",
+    pattern="text",
+    max_depth=2,        # hops from seed (0 = seed only)
+    max_pages=40,       # hard cap on total pages fetched
+    same_domain=True,   # restrict to seed's hostname
+    allowed_domains=[],                  # additional hostnames to allow
+    follow_pattern=r"/blog/\d{4}/",      # only enqueue URLs matching this regex
+    exclude_pattern=r"/tag/|/author/",   # never enqueue URLs matching this regex
+    paginate=False,     # follow rel="next" / aria-label="Next" pagination links
+)</code></pre>
+
+  <p><strong>Pagination</strong> (<code>paginate=True</code>) checks for:</p>
+  <ol>
+    <li><code>&lt;link rel="next" href="…"&gt;</code></li>
+    <li><code>&lt;a rel="next" href="…"&gt;</code></li>
+    <li><code>&lt;a aria-label="Next" href="…"&gt;</code></li>
+    <li><code>&lt;a class="next" href="…"&gt;</code></li>
+  </ol>
+  <p>The next-page URL is inserted at the front of the frontier (depth unchanged), so all pages of a paginated sequence are visited before moving to linked pages.</p>
+  <p>Every URL — seed, followed link, and pagination link — passes through SSRF validation before it is fetched or enqueued.</p>
+
+  <h2 id="result-shape">Result shape</h2>
+  <pre><code>{
+  "pattern":       "emails",
+  "query":         "only corporate addresses",
+  "strategy":      "preset | custom",
+  "on":            "html | text",
+  "patterns":      ["[\\w.+-]+@corp\\.example\\.com"],
+  "page_count":    3,
+  "llm_calls":     1,
+  "fetch_hits":    2,
+  "fetch_misses":  1,
+  "blocked_urls":  0,
+  "pages_crawled": 0,
+  "results": [
+    {
+      "source":   "https://example.com/contact",
+      "snippets": ["alice@corp.example.com", "bob@corp.example.com"]
+    }
+  ],
+  "synthesis": {
+    "summary": "Found 2 corporate addresses.",
+    "items":   ["alice@corp.example.com", "bob@corp.example.com"],
+    "notes":   ""
+  }
+}</code></pre>
+
+  <table>
+    <thead>
+      <tr><th>field</th><th>description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>pattern</code></td><td>Pattern name (<code>emails</code>, <code>links</code>, …)</td></tr>
+      <tr><td><code>query</code></td><td>Query string passed to the call</td></tr>
+      <tr><td><code>strategy</code></td><td><code>"preset"</code> when built-in regexes were used; <code>"custom"</code> after an LLM plan</td></tr>
+      <tr><td><code>on</code></td><td><code>"html"</code> or <code>"text"</code> — surface the regexes run against</td></tr>
+      <tr><td><code>patterns</code></td><td>The regex list used</td></tr>
+      <tr><td><code>page_count</code></td><td>Number of source pages processed</td></tr>
+      <tr><td><code>llm_calls</code></td><td>Total LLM calls made (plan + synthesis)</td></tr>
+      <tr><td><code>fetch_hits</code></td><td>HTTP cache hits</td></tr>
+      <tr><td><code>fetch_misses</code></td><td>HTTP cache misses (= actual network requests)</td></tr>
+      <tr><td><code>blocked_urls</code></td><td>URLs rejected by SSRF protection</td></tr>
+      <tr><td><code>pages_crawled</code></td><td>Pages visited during <code>crawl()</code> (0 for non-crawl calls)</td></tr>
+      <tr><td><code>results</code></td><td>Per-page list. Each entry: <code>source</code>, <code>snippets</code>, and optionally <code>depth</code> (crawl) or <code>error</code></td></tr>
+      <tr><td><code>synthesis</code></td><td>Present when <code>synthesize=True</code>. Shape: <code>{summary, items, notes}</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="configuration">Configuration reference</h2>
+  <p>All parameters are accepted by the <code>ScrapeByLLM</code> constructor and can be read / changed at any time via <code>.get(key)</code> / <code>.set(key, value)</code>.</p>
+
+  <h3>Fetching</h3>
+  <table>
+    <thead>
+      <tr><th>key</th><th>type</th><th>default</th><th>description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>window</code></td><td><code>int</code></td><td><code>200</code></td><td>Characters captured on each side of a regex match</td></tr>
+      <tr><td><code>max_chars</code></td><td><code>int</code></td><td><code>200000</code></td><td>Max page characters forwarded to extraction</td></tr>
+      <tr><td><code>timeout</code></td><td><code>int</code></td><td><code>20</code></td><td>Per-request HTTP timeout (seconds)</td></tr>
+      <tr><td><code>render</code></td><td><code>bool</code></td><td><code>False</code></td><td>Use headless Chrome instead of <code>requests</code></td></tr>
+      <tr><td><code>dedup</code></td><td><code>bool</code></td><td><code>True</code></td><td>Drop duplicate snippets within each page</td></tr>
+      <tr><td><code>synthesize</code></td><td><code>bool</code></td><td><code>False</code></td><td>Run a second LLM pass to produce a structured summary</td></tr>
+      <tr><td><code>output</code></td><td><code>str | None</code></td><td><code>None</code></td><td>Also write the result dict as JSON to this path</td></tr>
+      <tr><td><code>html_sample_size</code></td><td><code>int</code></td><td><code>6000</code></td><td>Characters of raw HTML sampled to compile a plan</td></tr>
+      <tr><td><code>respect_robots</code></td><td><code>bool</code></td><td><code>True</code></td><td>Honour <code>robots.txt</code>; skip disallowed URLs</td></tr>
+      <tr><td><code>user_agent</code></td><td><code>str</code></td><td><code>"scrape-byLLM"</code></td><td><code>User-Agent</code> header</td></tr>
+      <tr><td><code>extra_headers</code></td><td><code>dict</code></td><td><code>{}</code></td><td>Additional headers merged into every request</td></tr>
+      <tr><td><code>rate_limit</code></td><td><code>float</code></td><td><code>0.0</code></td><td>Minimum seconds between consecutive requests</td></tr>
+    </tbody>
+  </table>
+
+  <h3>SSRF protection</h3>
+  <table>
+    <thead>
+      <tr><th>key</th><th>type</th><th>default</th><th>description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>ssrf_protection</code></td><td><code>bool</code></td><td><code>True</code></td><td>Enable SSRF blocking</td></tr>
+      <tr><td><code>allow_private_ips</code></td><td><code>bool</code></td><td><code>False</code></td><td>Allow requests to private/loopback IPs (disables IP check)</td></tr>
+      <tr><td><code>allowed_hosts</code></td><td><code>list[str]</code></td><td><code>[]</code></td><td>Hostnames that bypass the IP check entirely</td></tr>
+      <tr><td><code>blocked_hosts</code></td><td><code>list[str]</code></td><td><code>[]</code></td><td>Hostnames that are always blocked regardless of IP</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Caching</h3>
+  <table>
+    <thead>
+      <tr><th>key</th><th>type</th><th>default</th><th>description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>cache</code></td><td><code>str</code></td><td><code>"off"</code></td><td>Cache mode — <code>off</code> | <code>readwrite</code> | <code>readonly</code> | <code>refresh</code></td></tr>
+      <tr><td><code>cache_dir</code></td><td><code>str</code></td><td><code>".scrape_cache"</code></td><td>Root directory for the on-disk cache</td></tr>
+      <tr><td><code>cache_ttl</code></td><td><code>int</code></td><td><code>0</code></td><td>Cache TTL in seconds; <code>0</code> means entries never expire</td></tr>
+      <tr><td><code>cache_llm</code></td><td><code>bool</code></td><td><code>True</code></td><td>Also cache LLM plan and synthesis responses</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Proxy rotation</h3>
+  <table>
+    <thead>
+      <tr><th>key</th><th>type</th><th>default</th><th>description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>proxies</code></td><td><code>str | list[str] | None</code></td><td><code>[]</code></td><td>Proxy URL or list of proxy URLs</td></tr>
+      <tr><td><code>proxy_rotation</code></td><td><code>str</code></td><td><code>"round_robin"</code></td><td>Selection strategy — <code>round_robin</code> | <code>random</code> | <code>sticky</code></td></tr>
+      <tr><td><code>proxy_max_failures</code></td><td><code>int</code></td><td><code>3</code></td><td>Drop a proxy after this many consecutive request failures</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Prompt-injection mitigation</h3>
+  <table>
+    <thead>
+      <tr><th>key</th><th>type</th><th>default</th><th>description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>injection_guard</code></td><td><code>bool</code></td><td><code>True</code></td><td>Scan scraped HTML for injection markers before LLM calls</td></tr>
+      <tr><td><code>regex_timeout</code></td><td><code>float</code></td><td><code>1.0</code></td><td>Max seconds to probe a regex against adversarial input</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="ssrf">SSRF protection</h2>
+  <p>SSRF protection is enabled by default (<code>ssrf_protection=True</code>) and runs on every URL before any network call is made — including each hop of a redirect chain and every link discovered during a crawl.</p>
+
+  <p><strong>Checks performed (in order):</strong></p>
+  <ol>
+    <li><strong>Scheme allowlist</strong> — only <code>http</code> and <code>https</code> are permitted. <code>file://</code>, <code>ftp://</code>, <code>data:</code>, etc. are blocked.</li>
+    <li><strong>Blocked hosts</strong> — any hostname in <code>blocked_hosts</code> is rejected immediately.</li>
+    <li><strong>Allowed hosts</strong> — any hostname in <code>allowed_hosts</code> skips the IP check (useful for known-safe internal services).</li>
+    <li><strong>DNS resolution + IP check</strong> — the hostname is resolved via <code>socket.getaddrinfo</code>. Every returned IP is checked against private ranges: <code>127.0.0.0/8</code>, <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code>, <code>192.168.0.0/16</code>, <code>169.254.0.0/16</code> (link-local / cloud metadata), <code>100.64.0.0/10</code> (CGNAT), <code>::1</code>, <code>fe80::/10</code>, <code>fc00::/7</code>.</li>
+  </ol>
+  <p>A blocked URL raises <code>SSRFError</code> (subclass of <code>Exception</code>) and increments <code>ctx["blocked_urls"]</code>, which is reported in the result dict.</p>
+  <pre><code># Allow an intranet host
+scraper = ScrapeByLLM(
+    ssrf_protection=True,
+    allowed_hosts=["intranet.corp.internal"],
+)
+
+# Disable entirely (e.g. tests / local scraping)
+scraper = ScrapeByLLM(ssrf_protection=False)</code></pre>
+
+  <h2 id="caching">Response caching</h2>
+  <p>The cache stores HTTP responses and LLM outputs on disk, keyed by a SHA-256 hash of the normalized URL (or model + query + pattern for LLM calls).</p>
+
+  <table>
+    <thead>
+      <tr><th>mode</th><th>reads</th><th>writes</th><th>use case</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>off</code></td><td>no</td><td>no</td><td>default; no I/O overhead</td></tr>
+      <tr><td><code>readwrite</code></td><td>yes</td><td>yes</td><td>normal caching</td></tr>
+      <tr><td><code>readonly</code></td><td>yes</td><td>no</td><td>replay a prior run without new requests</td></tr>
+      <tr><td><code>refresh</code></td><td>no</td><td>yes</td><td>force-refresh while still saving new responses</td></tr>
+    </tbody>
+  </table>
+
+  <pre><code># Warm a cache, then replay it
+scraper = ScrapeByLLM(cache="readwrite", cache_dir=".cache", cache_ttl=3600)
+result = scraper.get_all_emails(source="https://example.com")
+
+scraper2 = ScrapeByLLM(cache="readonly", cache_dir=".cache")
+result = scraper2.get_all_emails(source="https://example.com")  # no network call</code></pre>
+
+  <p>Cache files are laid out as <code>{cache_dir}/http/{key[:2]}/{key}</code> and <code>{cache_dir}/llm/{key[:2]}/{key}</code>. Each HTTP entry is the raw response text; each LLM entry is a JSON object.</p>
+  <p>Set <code>cache_llm=False</code> to cache HTTP responses but always call the LLM fresh.</p>
+
+  <h2 id="proxy">Proxy rotation</h2>
+  <pre><code>scraper = ScrapeByLLM(
+    proxies=["http://proxy1:8080", "http://proxy2:8080", "http://proxy3:8080"],
+    proxy_rotation="round_robin",   # default
+    proxy_max_failures=3,
+)</code></pre>
+
+  <p><strong>Rotation strategies:</strong></p>
+  <ul>
+    <li><code>round_robin</code> — cycles through the active proxy list in order.</li>
+    <li><code>random</code> — picks a random proxy for each request.</li>
+    <li><code>sticky</code> — maps each target hostname to a consistent proxy (same domain always uses the same proxy).</li>
+  </ul>
+  <p>A proxy is removed from the active pool after <code>proxy_max_failures</code> consecutive <code>RequestException</code> failures. If all proxies are exhausted, requests fall through without a proxy.</p>
+
+  <h2 id="injection">Prompt-injection mitigation</h2>
+  <p>When <code>injection_guard=True</code> (the default), scraped HTML is scanned for known injection markers before it is passed to the LLM. Markers include strings such as <code>"ignore previous instructions"</code>, <code>"jailbreak"</code>, <code>"&lt;|im_start|&gt;"</code>, and similar.</p>
+  <p>Detection is logged to <code>ctx["_injection_log"]</code> (list of <code>{markers, snippet, ts}</code> dicts) and a warning is emitted, but scraping continues — the guard informs rather than hard-blocks.</p>
+  <p>LLM-compiled regex patterns are also validated:</p>
+  <ul>
+    <li><strong>Compilation check</strong> — patterns that fail <code>re.compile()</code> are dropped.</li>
+    <li><strong>ReDoS heuristic</strong> — patterns with nested quantifier shapes (e.g. <code>(a+)+</code>, <code>(x*)*</code>) are dropped.</li>
+    <li><strong>Signal-based probe</strong> — each surviving pattern is run against adversarial input under a <code>regex_timeout</code>-second SIGALRM (Unix only). Patterns that time out are dropped.</li>
+  </ul>
+  <p>Set <code>injection_guard=False</code> to disable all of the above (useful in trusted pipelines or tests).</p>
+
+  <h2 id="robots">robots.txt</h2>
+  <p>When <code>respect_robots=True</code> (the default), <code>robots.txt</code> is fetched and parsed before each URL. Disallowed URLs raise <code>ValueError("Blocked by robots.txt: …")</code>.</p>
+  <p>Crawl-delay directives in <code>robots.txt</code> are respected: <code>rate_limit</code> acts as a floor, and the crawl delay acts as a floor, with the higher value winning.</p>
+
+  <h2 id="errors">Error handling</h2>
+  <table>
+    <thead>
+      <tr><th>exception</th><th>cause</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>SSRFError</code></td><td>URL blocked by SSRF protection (private IP, scheme, blocked host)</td></tr>
+      <tr><td><code>ValueError</code></td><td>URL blocked by <code>robots.txt</code></td></tr>
+      <tr><td><code>requests.exceptions.RequestException</code></td><td>Network error after all retries exhausted</td></tr>
+      <tr><td><code>RuntimeError</code></td><td>Cache miss in <code>readonly</code> mode</td></tr>
+    </tbody>
+  </table>
+  <p>Retriable HTTP status codes (429, 502, 503, 504) are retried with exponential backoff up to <code>max_retries</code> (default <code>3</code>) attempts.</p>
+  <p>Within <code>crawl()</code> and multi-source <code>get_all_*()</code>, per-page errors are caught and surfaced as <code>{"source": "…", "snippets": [], "error": "…"}</code> entries rather than propagating — the call returns partial results for successfully fetched pages.</p>
+</main>
+
+</body>
+</html>
