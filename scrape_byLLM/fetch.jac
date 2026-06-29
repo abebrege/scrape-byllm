@@ -46,7 +46,7 @@ def fetch_one(
     url: str,
     render: bool = False,
     timeout: int = 20,
-    max_chars: int = 40000,
+    max_chars: int = 200000,
     respect_robots: bool = True,
     user_agent: str = "scrape-byLLM",
     extra_headers: dict = {},
@@ -91,7 +91,7 @@ def fetch_one(
 }
 
 
-def fetch_many(urls: list[str], render: bool = False, timeout: int = 20, max_chars: int = 40000) -> list[dict] {
+def fetch_many(urls: list[str], render: bool = False, timeout: int = 20, max_chars: int = 200000) -> list[dict] {
     results: list[dict] = [];
     for url in urls {
         html: str = fetch_one(url, render, timeout, max_chars);

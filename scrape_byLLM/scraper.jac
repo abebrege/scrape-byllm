@@ -122,7 +122,7 @@ obj ScrapeByLLM {
     def postinit() {
         self._env = {
             "window":             200,
-            "max_chars":          40000,
+            "max_chars":          200000,
             "timeout":            20,
             "render":             False,
             "dedup":              True,
