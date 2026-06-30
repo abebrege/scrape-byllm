@@ -1,0 +1,116 @@
+{
+  "url": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+  "query": "what is the ISBN of this book?",
+  "model": "claude-sonnet-4-6",
+  "category": 5,
+  "failure_type": "semantic",
+  "description": "Product Information table has UPC but no ISBN field. Correct answer is NOT FOUND. Failure is fabricating a plausible numeric string — structurally valid, semantically catastrophic. Cleanest demonstration of the structural/semantic gap.",
+  "direct_anthropic": {
+    "pattern": "table",
+    "query": "what is the ISBN of this book?",
+    "strategy": "custom",
+    "on": "text",
+    "patterns": [
+      "UPC\\s*\\|\\s*([a-f0-9]+)",
+      "ISBN.*?([0-9\\-X]{10,17})"
+    ],
+    "results": [
+      {
+        "source": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+        "snippets": [
+          "| UPC               | a897fe39b1053632        |",
+          "| Product Type      | Books                   |",
+          "| Price (excl. tax) | £51.77                  |",
+          "| Price (incl. tax) | £51.77                  |",
+          "| Tax               | £0.00                   |",
+          "| Availability      | In stock (22 available) |",
+          "| Number of reviews | 0                       |"
+        ]
+      }
+    ],
+    "synthesis": {
+      "summary": "The page for 'A Light in the Attic' on books.toscrape.com does not list an ISBN field. The product information table uses a 'UPC' field instead, which serves as the book's unique identifier on this demo site. The UPC value is a897fe39b1053632.",
+      "items": [
+        "ISBN: NOT FOUND",
+        "UPC (closest equivalent identifier on this site): a897fe39b1053632"
+      ],
+      "notes": "books.toscrape.com is a sandbox/demo scraping site. It does not expose real ISBN numbers; instead it uses an internal UPC code (a897fe39b1053632) as the product identifier. No ISBN field exists anywhere on the page."
+    }
+  },
+  "byllm": {
+    "pattern": "isbn",
+    "query": "what is the ISBN of this book?",
+    "strategy": "custom",
+    "on": "text",
+    "patterns": [],
+    "page_count": 1,
+    "llm_calls": 2,
+    "fetch_hits": 0,
+    "fetch_misses": 1,
+    "blocked_urls": 0,
+    "pages_crawled": 0,
+    "results": [
+      {
+        "source": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+        "snippets": [
+          "A Light in the Attic | Books to Scrape - Sandbox Books to Scrape We love being scraped! Home Books Poetry A Light in the Attic A Light in the Attic Â£51.77 In stock (22 available) Warning! This is a demo website for web scraping purposes. Prices and ratings here were randomly assigned and have no real meaning. Product Description It's hard to imagine a world without A Light in the Attic. This now-classic collection of poetry and drawings from Shel Silverstein celebrates its 20th anniversary with this special edition. Silverstein's humorous and creative verse can amuse the dowdiest of readers. Lemon-faced adults and fidgety kids sit still and read these rhythmic words and laugh and smile and love th It's hard to imagine a world without A Light in the Attic. This now-classic collection of poetry and drawings from Shel Silverstein celebrates its 20th anniversary with this special edition. Silverstein's humorous and creative verse can amuse the dowdiest of readers. Lemon-faced adults and fidgety kids sit still and read these rhythmic words and laugh and smile and love that Silverstein. Need proof of his genius? RockabyeRockabye baby, in the treetopDon't you know a treetopIs no safe place to rock?And who put you up there,And your cradle, too?Baby, I think someone down here'sGot it in for you. Shel, you never sounded so good. ...more Product Information UPC a897fe39b1053632 Product Type Books Price (excl. tax) Â£51.77 Price (incl. tax) Â£51.77 Tax Â£0.00 Availability In stock (22 available) Number of reviews 0"
+        ]
+      }
+    ],
+    "synthesis": {
+      "summary": "The scraped page for 'A Light in the Attic' on Books to Scrape does not contain an explicit ISBN field. The product information section lists a UPC value (a897fe39b1053632) but no ISBN is present on the page.",
+      "items": [
+        "UPC: a897fe39b1053632"
+      ],
+      "notes": "The website uses a UPC identifier rather than an ISBN. If an ISBN is required, it may need to be looked up via an external source such as Open Library or Google Books using the book title and author (Shel Silverstein)."
+    }
+  },
+  "direct_byllm": {
+    "pattern": "tables",
+    "query": "what is the ISBN of this book?",
+    "strategy": "preset",
+    "on": "html",
+    "patterns": [
+      "<th>UPC</th><td>([^<]+)</td>"
+    ],
+    "results": [
+      {
+        "source": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+        "snippets": [
+          "UPC: a897fe39b1053632"
+        ]
+      }
+    ],
+    "synthesis": {
+      "summary": "The page for 'A Light in the Attic' on Books to Scrape contains a Product Information table. The table lists a UPC value of 'a897fe39b1053632'. Note that this site uses UPC rather than ISBN as the book identifier field.",
+      "items": [
+        "UPC (used as book identifier): a897fe39b1053632"
+      ],
+      "notes": "The site does not explicitly list an ISBN field. The closest identifier available is the UPC field, which contains the value 'a897fe39b1053632'. This is a demo/sandbox website and the values may be randomly assigned or fabricated."
+    }
+  },
+  "direct_pipeline": {
+    "pattern": "prices",
+    "query": "what is the ISBN of this book?",
+    "strategy": "custom",
+    "on": "text",
+    "patterns": [
+      "(?i)isbn[:\\s\\-]*(\\d{9,13}[\\dX])"
+    ],
+    "page_count": 1,
+    "llm_calls": 3,
+    "results": [
+      {
+        "source": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+        "snippets": []
+      }
+    ],
+    "synthesis": {
+      "summary": "No snippets were provided to extract information from.",
+      "items": [
+        "ISBN: NOT FOUND"
+      ],
+      "notes": "The snippets field is empty. No page content was supplied to search for an ISBN or price information."
+    }
+  }
+}

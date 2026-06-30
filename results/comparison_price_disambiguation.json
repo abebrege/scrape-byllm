@@ -1,0 +1,129 @@
+{
+  "url": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+  "query": "what is the price of this book?",
+  "model": "claude-sonnet-4-6",
+  "category": 1,
+  "failure_type": "semantic",
+  "description": "Product Information table has two price rows (excl. and incl. tax). Both are valid price strings; only context determines which the user wants. Sandbox page — stable, legal, no auth required.",
+  "direct_anthropic": {
+    "pattern": "price fields",
+    "query": "what is the price of this book?",
+    "strategy": "custom",
+    "on": "text",
+    "patterns": [
+      "£[\\d]+\\.[\\d]{2}",
+      "Price \\(excl\\.? tax\\)[^|]*\\|[^|]+",
+      "Price \\(incl\\.? tax\\)[^|]*\\|[^|]+",
+      "Tax[^|]*\\|[^|]+"
+    ],
+    "results": [
+      {
+        "source": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+        "snippets": [
+          "£51.77",
+          "| Price (excl. tax) | £51.77                  |",
+          "| Price (incl. tax) | £51.77                  |",
+          "| Tax               | £0.00                   |"
+        ]
+      }
+    ],
+    "synthesis": {
+      "summary": "The book 'A Light in the Attic' is listed at £51.77. Both the price excluding tax and including tax are £51.77, as the applicable tax is £0.00.",
+      "items": [
+        "Price (excl. tax): £51.77",
+        "Price (incl. tax): £51.77",
+        "Tax: £0.00"
+      ],
+      "notes": "The website states that prices were randomly assigned and have no real meaning, as it is a demo site for web scraping purposes."
+    }
+  },
+  "byllm": {
+    "pattern": "prices",
+    "query": "what is the price of this book?",
+    "strategy": "preset",
+    "on": "html",
+    "patterns": [],
+    "page_count": 1,
+    "llm_calls": 2,
+    "fetch_hits": 0,
+    "fetch_misses": 1,
+    "blocked_urls": 0,
+    "pages_crawled": 0,
+    "results": [
+      {
+        "source": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+        "snippets": []
+      }
+    ],
+    "synthesis": {
+      "summary": "No page content or snippets were provided, so no pricing information could be extracted. The query asks for the price of a book, but the scraped snippets are empty and no URL or book title was specified.",
+      "items": [],
+      "notes": "No snippets or page content were supplied. To answer this query, please provide the scraped text from the book's page or specify the book title and source URL so a lookup can be performed."
+    }
+  },
+  "direct_byllm": {
+    "pattern": "tables",
+    "query": "what is the price of this book?",
+    "strategy": "preset",
+    "on": "html",
+    "patterns": [
+      "<p class=\"price_color\">([^<]+)</p>",
+      "<th>Price \\(excl\\. tax\\)</th><td>([^<]+)</td>",
+      "<th>Price \\(incl\\. tax\\)</th><td>([^<]+)</td>",
+      "<th>Tax</th><td>([^<]+)</td>"
+    ],
+    "results": [
+      {
+        "source": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+        "snippets": [
+          "Price (displayed): £51.77",
+          "Price (excl. tax): £51.77",
+          "Price (incl. tax): £51.77",
+          "Tax: £0.00",
+          "Availability: In stock (22 available)",
+          "Number of reviews: 0"
+        ]
+      }
+    ],
+    "synthesis": {
+      "summary": "The book 'A Light in the Attic' is listed on Books to Scrape at a price of £51.77. Both the price excluding tax and the price including tax are £51.77, meaning no tax is applied (£0.00 tax). The book is currently in stock with 22 copies available.",
+      "items": [
+        "A Light in the Attic - Price (excl. tax): £51.77",
+        "A Light in the Attic - Price (incl. tax): £51.77",
+        "A Light in the Attic - Tax: £0.00"
+      ],
+      "notes": "Prices on this website were randomly assigned and have no real meaning, as stated by the site's own disclaimer. The currency symbol appears garbled in the raw HTML (shown as 'Â£') but represents the British Pound (£)."
+    }
+  },
+  "direct_pipeline": {
+    "pattern": "prices",
+    "query": "what is the price of this book?",
+    "strategy": "preset",
+    "on": "html",
+    "patterns": [
+      "[$€£¥]\\s?\\d[\\d,]*(?:\\.\\d{1,2})?"
+    ],
+    "page_count": 1,
+    "llm_calls": 3,
+    "results": [
+      {
+        "source": "https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html",
+        "snippets": [
+          "   \n            <h1>A Light in the Attic</h1>\n\n            \n                \n\n\n\n\n\n\n    \n        <p class=\"price_color\">Â£51.77</p>\n    \n\n<p class=\"instock availability\">\n    <i class=\"icon-ok\"></i>\n    \n        In stock (22 available)\n    \n</p>\n\n",
+          "ype</th><td>Books</td>\n        </tr>\n\n        \n        \n            <tr>\n                <th>Price (excl. tax)</th><td>Â£51.77</td>\n            </tr>\n            \n                <tr>\n                    <th>Price (incl. tax)</th><td>Â£51.77</td>",
+          "<td>Â£51.77</td>\n            </tr>\n            \n                <tr>\n                    <th>Price (incl. tax)</th><td>Â£51.77</td>\n                </tr>\n                <tr>\n                    <th>Tax</th><td>Â£0.00</td>\n                </tr>\n ",
+          ">Price (incl. tax)</th><td>Â£51.77</td>\n                </tr>\n                <tr>\n                    <th>Tax</th><td>Â£0.00</td>\n                </tr>\n            \n            <tr>\n                <th>Availability</th>\n                <td>In s"
+        ]
+      }
+    ],
+    "synthesis": {
+      "summary": "The book 'A Light in the Attic' is priced at £51.77 both excluding and including tax, as the tax amount is £0.00. It is currently in stock with 22 copies available.",
+      "items": [
+        "Price (excl. tax): £51.77",
+        "Price (incl. tax): £51.77",
+        "Tax: £0.00"
+      ],
+      "notes": "The currency symbol appears garbled in the raw HTML (shown as 'Â£') but correctly represents the British Pound (£)."
+    }
+  }
+}
