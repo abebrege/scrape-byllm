@@ -171,19 +171,23 @@ def via_direct_pipeline(params: ComparisonParams, synthesis_schema: str) -> dict
     }
 
 
-def run_comparison(params: ComparisonParams) -> dict:
+def run_comparison(params: ComparisonParams, verbose: bool = False) -> dict:
     synthesis_schema, output_schema = _build_schemas(params)
 
-    print("  [1/4] direct Anthropic API...")
+    if verbose:
+        print("  [1/4] direct Anthropic API...")
     direct_result = via_anthropic_direct(params, output_schema)
 
-    print("  [2/4] byLLM...")
+    if verbose:
+        print("  [2/4] byLLM...")
     byllm_result = via_byllm(params)
 
-    print("  [3/4] direct byLLM...")
+    if verbose:
+        print("  [3/4] direct byLLM...")
     direct_byllm_result = via_direct_byllm(params)
 
-    print("  [4/4] direct pipeline...")
+    if verbose:
+        print("  [4/4] direct pipeline...")
     pipeline_result = via_direct_pipeline(params, synthesis_schema)
 
     return {
