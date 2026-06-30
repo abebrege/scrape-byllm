@@ -1,0 +1,115 @@
+{
+  "url": "https://de.wikipedia.org/wiki/Volkswagen",
+  "query": "what is Volkswagen's annual revenue in euros for the most recent reported year?",
+  "model": "claude-sonnet-4-6",
+  "category": 8,
+  "failure_type": "semantic",
+  "description": "German Wikipedia uses European number formatting (period as thousands separator, comma as decimal). A value like '293.628' means 293,628 — not 293.628. Tests whether the model normalizes or silently mis-parses the locale.",
+  "direct_anthropic": {
+    "pattern": "tables",
+    "query": "what is Volkswagen's annual revenue in euros for the most recent reported year?",
+    "strategy": "custom",
+    "on": "text",
+    "patterns": [
+      "(?:Umsatz|Revenue|revenue|Mrd\\.?\\s*€|Milliarden\\s*Euro|€\\s*\\d[\\d\\.,]*)",
+      "\\d{2,3}[\\.,]\\d\\s*(?:Mrd|Milliarden)"
+    ],
+    "results": [
+      {
+        "source": "https://de.wikipedia.org/wiki/Volkswagen",
+        "snippets": [
+          "2023 war die Volkswagen AG der größte Konzern Europas und der größte Autohersteller der Welt nach Umsatz. (line 3 of page text)",
+          "No explicit EUR revenue figure is present in the fetched page content."
+        ]
+      }
+    ],
+    "synthesis": {
+      "summary": "The German Wikipedia page for the Volkswagen brand (https://de.wikipedia.org/wiki/Volkswagen) does not contain an explicit annual revenue figure in euros. It mentions that in 2023, Volkswagen AG was the largest corporation in Europe and the world's largest automaker by revenue (Umsatz), but provides no specific monetary value. The Volkswagen Group's FY2023 revenue of €322.3 billion is documented in Volkswagen AG's official annual report and on the Volkswagen AG Wikipedia page (not fetched), but is absent from this brand-level article.",
+      "items": [
+        "Revenue: 322300000000 EUR (year: 2023, raw: not explicitly stated on the fetched page — sourced from Volkswagen AG annual report 2023 as referenced by the page's claim of world-leading Umsatz in 2023)"
+      ],
+      "notes": "The fetched page (de.wikipedia.org/wiki/Volkswagen) covers the Volkswagen brand, not the Volkswagen AG group entity. No numeric revenue figure appears in the page text or tables. The revenue value of 322.3 Mrd. EUR for FY2023 is the Volkswagen Group figure from the official 2023 Annual Report, referenced indirectly by the page's statement that VW AG was the largest automaker by revenue in 2023. Treat this figure with caution as it was not extracted directly from the page text."
+    }
+  },
+  "byllm": {
+    "pattern": "prices",
+    "query": "what is Volkswagen's annual revenue in euros for the most recent reported year?",
+    "strategy": "custom",
+    "on": "text",
+    "patterns": [
+      "[\\d][\\d.,]+\\s*(?:Mrd\\.?|Milliarden)\\s*(?:€|EUR|Euro)"
+    ],
+    "page_count": 1,
+    "llm_calls": 2,
+    "fetch_hits": 0,
+    "fetch_misses": 1,
+    "blocked_urls": 0,
+    "pages_crawled": 0,
+    "results": [
+      {
+        "source": "https://de.wikipedia.org/wiki/Volkswagen",
+        "snippets": []
+      }
+    ],
+    "synthesis": {
+      "summary": "No scraped page snippets were provided, so no information about Volkswagen's annual revenue in euros could be extracted from the supplied data.",
+      "items": [],
+      "notes": "The snippets field was empty. To answer this query, please scrape Volkswagen Group's official investor relations page (https://www.volkswagenag.com/en/InvestorRelations.html) or their latest annual report. Based on publicly available knowledge, Volkswagen Group reported revenue of approximately €293.4 billion for the fiscal year 2023, but this figure is not sourced from the provided snippets and should be verified against official filings."
+    }
+  },
+  "direct_byllm": {
+    "pattern": "tables",
+    "query": "what is Volkswagen's annual revenue in euros for the most recent reported year?",
+    "strategy": "custom",
+    "on": "text",
+    "patterns": [
+      "[Uu]msatz",
+      "[Rr]evenue",
+      "[Ee]innahmen",
+      "\\d+[,.]\\d+\\s*(?:Mrd|Mio|Milliarden|Millionen)?\\s*(?:Euro|EUR|€)"
+    ],
+    "results": [
+      {
+        "source": "https://de.wikipedia.org/wiki/Volkswagen",
+        "snippets": [
+          "The page contains registration/sales volume tables (Zulassungen) for Germany, Austria, and Switzerland, but does NOT contain annual revenue (Umsatz) figures for Volkswagen.",
+          "Global registrations table: 2023: 9.2 Mio. (VW Gruppe), 4.87 Mio. (Marke VW); 2022: 8.2 Mio., 4.476 Mio.; 2021: 8.8 Mio.; 2020: 9.3 Mio.; 2019: 10.9 Mio., 6.278 Mio.; 2018: 10.8 Mio., 6.245 Mio.",
+          "Germany registrations 2023: 519,089 units (18.2% of total); 2022: 480,967 (18.1%); 2021: 489,962 (18.7%); 2020: 525,612 (18.0%); 2019: 667,518 (18.5%)",
+          "The article states: '2023 war die Volkswagen AG der größte Konzern Europas und der größte Autohersteller der Welt nach Umsatz.' (In 2023, Volkswagen AG was the largest company in Europe and the largest automaker in the world by revenue.) — but no specific revenue figure in euros is given on this page."
+        ]
+      }
+    ],
+    "synthesis": {
+      "summary": "The German Wikipedia article on Volkswagen (de.wikipedia.org/wiki/Volkswagen) does not contain specific annual revenue figures in euros. The page focuses on the Volkswagen brand's history, model lineup, and vehicle registration/sales volume statistics. It does mention that in 2023 Volkswagen AG was the largest company in Europe and the largest automaker in the world by revenue (Umsatz), but provides no actual euro revenue figure. Revenue data would need to be sourced from the Volkswagen AG article or official financial reports.",
+      "items": [
+        "Annual revenue (EUR): Not available on this page — no specific revenue figure in euros is reported",
+        "Note: 2023 global VW Group registrations: 9.2 million vehicles",
+        "Note: 2023 VW brand registrations: 4.87 million vehicles",
+        "Note: Article states VW AG was the largest automaker by revenue (Umsatz) in 2023, but gives no euro amount"
+      ],
+      "notes": "The queried page (de.wikipedia.org/wiki/Volkswagen) covers the VW brand, not the full Volkswagen AG financial data. Revenue figures are not present. According to public sources, Volkswagen AG reported revenue of approximately 322 billion euros for fiscal year 2023, but this figure does not appear in the scraped HTML content."
+    }
+  },
+  "direct_pipeline": {
+    "pattern": "prices",
+    "query": "what is Volkswagen's annual revenue in euros for the most recent reported year?",
+    "strategy": "preset",
+    "on": "text",
+    "patterns": [
+      "€\\s?\\d[\\d,]*(?:\\.\\d{1,2})?"
+    ],
+    "page_count": 1,
+    "llm_calls": 3,
+    "results": [
+      {
+        "source": "https://de.wikipedia.org/wiki/Volkswagen",
+        "snippets": []
+      }
+    ],
+    "synthesis": {
+      "summary": "No revenue data was found in the provided snippets.",
+      "items": [],
+      "notes": "No page snippets were provided to extract data from. Please supply the scraped page text to enable extraction."
+    }
+  }
+}

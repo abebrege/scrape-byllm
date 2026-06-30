@@ -1,0 +1,143 @@
+{
+  "url": "https://en.wikipedia.org/wiki/2020_United_States_presidential_election",
+  "query": "what percentage of the popular vote did Joe Biden receive in the 2020 presidential election?",
+  "model": "claude-sonnet-4-6",
+  "category": 9,
+  "failure_type": "semantic",
+  "description": "Page contains dozens of vote percentages (state results, third-party candidates, Electoral College tallies). Model must return the top-line national popular vote share, not a state result or an opponent figure.",
+  "direct_anthropic": {
+    "pattern": "tables",
+    "query": "what percentage of the popular vote did Joe Biden receive in the 2020 presidential election?",
+    "strategy": "custom",
+    "on": "text",
+    "patterns": [
+      "biden.*?popular.*?%",
+      "51\\.\\d+%",
+      "joe biden.*?\\d+\\.\\d+%"
+    ],
+    "results": [
+      {
+        "source": "https://en.wikipedia.org/wiki/2020_United_States_presidential_election",
+        "snippets": [
+          "Biden won 306 Electoral College votes and 51.3% of the popular vote to Trump's 232 electoral votes and 46.8% of the popular vote.",
+          "Biden's 51.3% of the popular vote was the highest for a challenger to an incumbent president since 1932.",
+          "Joe Biden: Democratic; Delaware; 81,283,501; 51.31%; 306 (electoral votes)",
+          "Total popular vote row: Biden 81,283,501 | 51.31% | 306 EV — Trump 74,223,975 | 46.85% | 232 EV",
+          "2020 results summary row: 51.3%; 46.8%; 1.9%; Biden +4.5"
+        ]
+      }
+    ],
+    "synthesis": {
+      "summary": "Joe Biden received 51.31% of the national popular vote in the 2020 U.S. presidential election, amounting to 81,283,501 votes. This is confirmed in the article's introductory summary, the results narrative, and the official popular-vote results table. Trump received 46.85% (74,223,975 votes). Biden's margin over Trump was approximately 4.46 percentage points.",
+      "items": [
+        "Biden national popular vote share: 51.31% (cited in the article's popular vote results table and the election narrative section: 'Biden won 306 Electoral College votes and 51.3% of the popular vote')"
+      ],
+      "notes": "The article rounds to 51.3% in narrative text and gives the precise figure of 51.31% in the results table. Both figures refer to the same certified national popular vote total."
+    }
+  },
+  "byllm": {
+    "pattern": "text",
+    "query": "what percentage of the popular vote did Joe Biden receive in the 2020 presidential election?",
+    "strategy": "custom",
+    "on": "text",
+    "patterns": [
+      "Biden[^\\n]*?([4-6]\\d\\.\\d+\\s*%)",
+      "([4-6]\\d\\.\\d+\\s*%)\\s*(?:of the popular vote|popular vote)[^\\n]*Biden",
+      "popular vote[\\s\\S]{0,300}Biden[\\s\\S]{0,100}([4-6]\\d\\.\\d+\\s*%)",
+      "51\\.3%|51\\.4%|51\\.5%|51\\.6%|51\\.7%|51\\.8%|51\\.9%|52\\.0%|52\\.1%|52\\.2%|52\\.3%"
+    ],
+    "page_count": 1,
+    "llm_calls": 2,
+    "fetch_hits": 0,
+    "fetch_misses": 1,
+    "blocked_urls": 0,
+    "pages_crawled": 0,
+    "results": [
+      {
+        "source": "https://en.wikipedia.org/wiki/2020_United_States_presidential_election",
+        "snippets": [
+          "rmath subsection 8.1 Election night 8.2 Late counting 8.3 Election protests 8.4 False claims of fraud 8.5 Lawsuits 8.5.1 Texas v. Pennsylvania 8.6 Trump's refusal to concede 8.7 GSA delays certifying Biden as president-elect 8.8 Attempts to delay or deny election results 8.9 Plot for state legislatures to choose electors 8.10 Pressure on state and local officials 8.11 Election recounts 8.12 Electoral College votes 8.13 Certification and January 6th 8.14 Post-certification 8.15 Election audits 8.16 Viewership 9 See also 10 Notes 11 References 12 Further reading Toggle Further reading subsection 12.1 Voter fraud 12.2 Policy implications 13 External links Toggle the table of contents 2020 United States presidential election 88 languages Afrikaans العربية مصرى Asturianu Azərbaycanca Basa Bali Беларуская Български भोजपुरी বাংলা Brezhoneg Bosanski Català 閩東語 / Mìng-dĕ̤ng-ngṳ̄ کوردی Čeština Cymraeg Dansk Deutsch Zazaki Ελληνικά Emiliàn e rumagnòl Español Eesti Euskara فارسی Suomi Français Nordfriisk Frysk Gaeilge 客家語 / Hak-kâ-ngî עברית हिन्दी Hrvatski Magyar Հայերեն Bahasa Indonesia Íslenska Italiano 日本語 ქართული Қазақша ಕನ್ನಡ 한국어 کٲشُر Kernowek Lombard Lietuvių Latviešu Македонски मराठी Bahasa Melayu မြန်မာဘာသာ नेपाली Li Niha Nederlands Norsk bokmål ਪੰਜਾਬੀ Polski Português Română Русский Scots Srpskohrvatski / српскохрватски සිංහල Simple English Slovenčina Slovenščina Српски / srpski Svenska Ślůnski தமிழ் ไทย Toki pona Türkçe ئۇيغۇرچە / Uyghurche Українська اردو Oʻzbekcha / ўзбекча Vèneto Tiếng Việt 吴语 მარგალური ייִדיש 閩南語 / Bân-lâm-gí 粵語 中文 Edit links Article Talk English Read View source View history Tools Tools move to sidebar hide Actions Read View source View history General What links here Related changes Upload file Permanent link Page information Cite this page Get shortened URL Print/export Download as PDF Printable version In other projects Wikimedia Commons Wikinews Wikiquote Wikidata item Appearance move to sidebar hide From Wikipedia, the free encyclopedia For related races, see 2020 United States elections . 2020 United States presidential election ← 2016 November 3, 2020 [ a ] 2024 → 538 members of the Electoral College 270 electoral votes needed to win Opinion polls Turnout 66.6% 6.5 pp [ b ] Nominee Joe Biden Donald Trump Party Democratic Republican Home state Delaware Florida [ c ] Running mate Kamala Harris Mike Pence Electoral vote 306 232 States carried 25 + DC + NE-02 2",
+          "20 United States presidential election ← 2016 November 3, 2020 [ a ] 2024 → 538 members of the Electoral College 270 electoral votes needed to win Opinion polls Turnout 66.6% 6.5 pp [ b ] Nominee Joe Biden Donald Trump Party Democratic Republican Home state Delaware Florida [ c ] Running mate Kamala Harris Mike Pence Electoral vote 306 232 States carried 25 + DC + NE-02 25 + ME-02 Popular vote 81,283,501 [ 1 ] 74,223,975 [ 1 ] Percentage 51.3% [ 1 ] 46.8% [ 1 ] Presidential election results map. Blue denotes states won by Biden/Harris and red denotes those won by Trump/Pence. Numbers indicate electoral votes cast by each state and the Dist",
+          " vote 306 232 States carried 25 + DC + NE-02 25 + ME-02 Popular vote 81,283,501 [ 1 ] 74,223,975 [ 1 ] Percentage 51.3% [ 1 ] 46.8% [ 1 ] Presidential election results map. Blue denotes states won by Biden/Harris and red denotes those won by Trump/Pence. Numbers indicate electoral votes cast by each state and the District of Columbia . President before election Donald Trump Republican Elected President Joe Biden Democratic 2020 US presidential election Timeline 2017–2019 January–October 2020 November 2020 – January 2021 Presidential debates Parties Polling national statewide News media endorsements primary general Fundraising Russian interference Presidential electors Electoral College vote count Presidential transition Subsequent voting restrictions Attempts to overturn Protests inauguration week Lawsuits pre-election post-election Texas v. Pennsylvania Fake electors plot Chesebro memos Eastman memos Jeffrey Clark letter January 6 Capitol attack timeline reactions domestic international aftermath Democratic Party Primaries timeline Candidates Debates Forums Results Positions Polling national statewide Endorsements Nominee VP candidate selection Convention automatic delegates Republican Party Primaries Debates Results Polling Endorsements Nominee Convention Reactions to Trump's fraud claims Third parties Libertarian Party primaries convention nominee Green Party primaries debates results convention nominee Third-party and independent candidates Related races Senate House Governors ← 2016 2020 2024 → v t e Presidential elections were held in the United States on November 3, 2020. [ a ] The Democratic ticket of former vice president Joe Biden and California junior senator Kamala Harris defeated the incumbent Republican president Donald Trump and vice president Mike Pence . [ 9 ] The election saw the highest voter turnout by percentage since 1900 . Biden received more than 81 million votes, [ 10 ] the most votes ever cast for a presidential candidate in U.S. history. [ 11 ] In a competitive primary that featured the most candidates for any political party in the modern era of American politics , Biden secured the Democratic presidential nomination . Biden's running mate, Harris, became the first African American, first Asian American, and third female [ d ] vice presidential nominee on a major party ticket. Trump easily secured re-nomination with only minor opposition in the Republican primaries . Jo Jorgensen secured the Libertarian presidential nomination with Spike Cohen as her running mate, and Howie Hawkins secured the Green presidential nomination with Angela Nicole Walker as his running mate. The central issues of the election included the public health and economic impacts of the COVID-19 pandemic , civil unrest in reaction to the police murder of George Floyd , the Supreme Court following the death of Ruth Bader Ginsburg and confirmation of Amy Coney Barrett , and the future of the Affordable Care Act . [ 12 ] Due to the ongoing pandemic, a record number of ballots were cast early and by mail . [ 13 ] Thirty-eight states had over half of all votes cast using these methods, and only three states had fewer than 25%. [ 14 ] As a result of a large number of mail-in ballots, some swing states saw delays in vote counting and reporting; this led to major news outlets delaying their projection of Biden and Harris as the president-elect and vice president-elect until the morning of November 7, 2020. [ 15 ] Biden defeated Trump, winning 306 Electoral College votes and 51.3% of the popular vote to Trump's 232 electoral votes and 46.8% of the popular vote. Trump was the first president to lose re-election since George H. W. Bush in 1992 . Key to Biden's pivotal victory we",
+          "laying their projection of Biden and Harris as the president-elect and vice president-elect until the morning of November 7, 2020. [ 15 ] Biden defeated Trump, winning 306 Electoral College votes and 51.3% of the popular vote to Trump's 232 electoral votes and 46.8% of the popular vote. Trump was the first president to lose re-election since George H. W. Bush in 1992 . Key to Biden's pivotal victory were his wins in the Democratic-leaning Rust Belt states of Michigan , Pennsylvania , and Wisconsin , which Trump narrowly carried in 2016 and whose combined 46 electoral votes were enough to swing the election to either candidate. This election marked the first time since 1948 that the Democratic Party won the popular vote in four consecutive elections. Trump refused to accept the results; he and his allies made disproven claims of fraud, pressured election officials, filed several unsuccessful lawsuits, [ 16 ] [ 17 ] [ 18 ] and directly attempted to overturn the results at the county, state, and federal level. This culminated in the attack on the United States Capitol , on January 6, 2021, for which Trump was impeached a second time . The day after the attack, Trump stated that a \"new administration\" would be succeeding his, without mentioning president-elect Biden by name, in a video posted on Twitter . [ 19 ] [ 20 ] [ 21 ] Background Further information: United States presidential election § Procedure Donald Trump , the incumbent president in 2020, whose firs",
+          "ican Home state Delaware Florida [ c ] Running mate Kamala Harris Mike Pence Electoral vote 306 232 States carried 25 + DC + NE-02 25 + ME-02 Popular vote 81,283,501 [ 1 ] 74,223,975 [ 1 ] Percentage 51.3% [ 1 ] 46.8% [ 1 ] Presidential election results map. Blue denotes states won by Biden/Harris and red denotes those won by Trump/Pence. Numbers indicate electoral votes cast by each state and the Dist",
+          "laying their projection of Biden and Harris as the president-elect and vice president-elect until the morning of November 7, 2020. [ 15 ] Biden defeated Trump, winning 306 Electoral College votes and 51.3% of the popular vote to Trump's 232 electoral votes and 46.8% of the popular vote. Trump was the first president to lose re-election since George H. W. Bush in 1992 . Key to Biden's pivotal victory we"
+        ]
+      }
+    ],
+    "synthesis": {
+      "summary": "In the 2020 United States presidential election, Joe Biden received 51.3% of the popular vote, totaling 81,283,501 votes. His opponent, Donald Trump, received 46.8% of the popular vote with 74,223,975 votes. Biden also won 306 Electoral College votes compared to Trump's 232.",
+      "items": [
+        "Joe Biden popular vote percentage: 51.3%",
+        "Joe Biden total popular votes: 81,283,501",
+        "Donald Trump popular vote percentage: 46.8%",
+        "Donald Trump total popular votes: 74,223,975"
+      ],
+      "notes": ""
+    }
+  },
+  "direct_byllm": {
+    "pattern": "text",
+    "query": "what percentage of the popular vote did Joe Biden receive in the 2020 presidential election?",
+    "strategy": "custom",
+    "on": "text",
+    "patterns": [
+      "(?i)biden[^.]*?([0-9]+\\.?[0-9]*\\s*%)",
+      "(?i)popular\\s*vote[^.]*?([0-9]+\\.?[0-9]*\\s*%)",
+      "(?i)percentage[^.]*?biden[^.]*?([0-9]+\\.?[0-9]*\\s*%)"
+    ],
+    "results": [
+      {
+        "source": "https://en.wikipedia.org/wiki/2020_United_States_presidential_election",
+        "snippets": [
+          "Biden received 51.3% of the popular vote to Trump's 46.8% of the popular vote.",
+          "Biden popular vote total: 81,283,501 (51.3%)",
+          "Trump popular vote total: 74,223,975 (46.8%)",
+          "Turnout: 66.6% (Increase of 6.5 percentage points)",
+          "Biden won 306 Electoral College votes; Trump won 232 Electoral College votes."
+        ]
+      }
+    ],
+    "synthesis": {
+      "summary": "According to the Wikipedia article on the 2020 United States presidential election, Joe Biden received 51.3% of the popular vote, totaling 81,283,501 votes. His opponent, incumbent President Donald Trump, received 46.8% of the popular vote (74,223,975 votes). Biden won the election with 306 Electoral College votes compared to Trump's 232.",
+      "items": [
+        "Joe Biden popular vote percentage: 51.3%",
+        "Joe Biden popular vote total: 81,283,501",
+        "Donald Trump popular vote percentage: 46.8%",
+        "Donald Trump popular vote total: 74,223,975",
+        "Voter turnout: 66.6% (up 6.5 percentage points from 2016)"
+      ],
+      "notes": "The percentages shown (51.3% and 46.8%) do not sum to 100% because third-party candidates (e.g., Jo Jorgensen of the Libertarian Party, Howie Hawkins of the Green Party) also received a share of the popular vote."
+    }
+  },
+  "direct_pipeline": {
+    "pattern": "text",
+    "query": "what percentage of the popular vote did Joe Biden receive in the 2020 presidential election?",
+    "strategy": "custom",
+    "on": "text",
+    "patterns": [
+      "(?i)biden[^.]{0,200}?popular vote[^.]{0,100}?\\d+\\.?\\d*\\s*%",
+      "(?i)\\d+\\.?\\d*\\s*%[^.]{0,200}?popular vote[^.]{0,100}?biden",
+      "(?i)biden[^|]{0,100}\\d+\\.\\d+%",
+      "(?i)popular vote[\\s\\S]{0,300}?biden[\\s\\S]{0,300}?\\d+\\.\\d+\\s*%"
+    ],
+    "page_count": 1,
+    "llm_calls": 3,
+    "results": [
+      {
+        "source": "https://en.wikipedia.org/wiki/2020_United_States_presidential_election",
+        "snippets": [
+          " hide From Wikipedia, the free encyclopedia For related races, see 2020 United States elections . 2020 United States presidential election ← 2016 November 3, 2020 [ a ] 2024 → 538 members of the Electoral College 270 electoral votes needed to win Opinion polls Turnout 66.6% 6.5 pp [ b ] Nominee Joe Biden Donald Trump Party Democratic Republican Home state Delaware Florida [ c ] Running mate Kamala Harris Mike Pence Electoral vote 306 232 States carried 25 + DC + NE-02 25 + ME-02 Popular vote 81,283,501 [ 1 ] 74,223,975 [ 1 ] Percentage 51.3% [ 1 ] 46.8% [ 1 ] Presidential election results map. Blue denotes states won by Biden/Harris and red denotes those won by Trump/Pence. Numbers indicate electoral votes cast by each state and the District of Columbia . President before election Donald Trump Republican Elected President Joe Biden Dem",
+          " than 25%. [ 14 ] As a result of a large number of mail-in ballots, some swing states saw delays in vote counting and reporting; this led to major news outlets delaying their projection of Biden and Harris as the president-elect and vice president-elect until the morning of November 7, 2020. [ 15 ] Biden defeated Trump, winning 306 Electoral College votes and 51.3% of the popular vote to Trump's 232 electoral votes and 46.8% of the popular vote. Trump was the first president to lose re-election since George H. W. Bush in 1992 . Key to Biden's pivotal victory were his wins in the Democratic-leaning Rust Belt states of Michigan , Pennsylvania , and Wisconsin , "
+        ]
+      }
+    ],
+    "synthesis": {
+      "summary": "In the 2020 United States presidential election, Joe Biden received 51.3% of the national popular vote, corresponding to 81,283,501 votes, defeating Donald Trump who received 46.8% (74,223,975 votes).",
+      "items": [
+        "Biden national popular vote share: 51.3% (81,283,501 votes) — sourced from the 2020 United States Presidential Election infobox table and results summary on Wikipedia (https://en.wikipedia.org/wiki/2020_United_States_presidential_election)"
+      ],
+      "notes": "The figures cited are referenced with footnote [1] on the Wikipedia article, indicating they draw from an external source. Minor rounding differences may exist depending on the final certified totals used by different sources."
+    }
+  }
+}

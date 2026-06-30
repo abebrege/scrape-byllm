@@ -81,7 +81,7 @@ def _get_html(src: any, opts: dict) -> str {
     }
     render: bool = bool(opts.get("render", False));
     timeout: int = int(opts.get("timeout", 20));
-    max_chars: int = int(opts.get("max_chars", 40000));
+    max_chars: int = int(opts.get("max_chars",200000));
     respect_robots: bool = bool(opts.get("respect_robots", True));
     user_agent: str = str(opts.get("user_agent", "scrape-byLLM"));
     extra_headers: dict = dict(opts.get("extra_headers", {}));

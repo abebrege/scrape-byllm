@@ -1,4 +1,18 @@
-# scrape-byLLM
+# Goal
+This repository tests the accuracy, cost efficiency, and usability of Meaning-Typed Programming (byLLM) vs manual LLM querying in web scraping. 
+
+Output is analyzed from each of the following methods:
+- Direct LLM query
+- Direct byLLM query
+- Scraper abstractions (regex filtering, pagination handling, crawling, backoffs, injection attacks, etc.) for:
+  - LLM query
+  - byLLM query
+
+The scraper abstractions build a pipeline for the LLMs to leverage potentially yielding better results. The assistance this pipeline gives, if any, is another question this project will answer.
+
+# Library
+
+## scrape-byLLM
 
 A Python library for LLM-assisted web scraping. One LLM call compiles a reusable extraction plan for a `(pattern, query)` pair.
 
@@ -52,102 +66,8 @@ scraper.quit()
 
 **Source** can be a URL, a list of URLs, raw HTML, plain text, or a mixed list.
 
-## Preset patterns
-
-| method | pattern |
-|---|---|
-| `get_all_links` | `<a href>` URLs |
-| `get_all_images` | `<img src>` URLs |
-| `get_all_emails` | e-mail addresses |
-| `get_all_phones` | phone numbers |
-| `get_all_prices` | price strings ($, €, £, ¥) |
-| `get_all_tables` | `<table>` blocks |
-| `get_all_headings` | `<h1>`–`<h6>` text |
-| `get_all_text` | full visible text |
-| `get_all_charts` | `<canvas>` / `<svg>` blocks |
-| `get_all_code` | `<code>` / `<pre>` blocks |
-
-Pass `query=` to any method to override with a custom LLM-compiled plan.
-
-## BFS crawl
-
-```python
-result = scraper.crawl(
-    seed="https://example.com/blog",
-    query="product announcements",
-    pattern="text",
-    max_depth=2,
-    max_pages=40,
-    same_domain=True,
-    follow_pattern=r"/blog/",
-    exclude_pattern=r"/tag/",
-    paginate=True,           # follow rel="next" pagination links
-)
-print(result["pages_crawled"])
-```
-
-Every URL is SSRF-validated before it is fetched or enqueued.
-
-## Result shape
-
-```json
-{
-  "pattern":       "emails",
-  "query":         "",
-  "strategy":      "preset",
-  "on":            "text",
-  "patterns":      ["[\\w.+-]+@[\\w-]+\\.[\\w.]+"],
-  "page_count":    1,
-  "llm_calls":     0,
-  "fetch_hits":    0,
-  "fetch_misses":  1,
-  "blocked_urls":  0,
-  "pages_crawled": 0,
-  "results": [
-    { "source": "https://…", "snippets": ["user@example.com"] }
-  ]
-}
-```
-
-`synthesis` (`{ summary, items, notes }`) is added when `synthesize=True`.
-
-## Key options
-
-```python
-ScrapeByLLM(
-    # fetching
-    render=False,           # headless Chrome for JS pages
-    timeout=20,             # per-request timeout (seconds)
-    respect_robots=True,    # honour robots.txt
-    rate_limit=1.0,         # min seconds between requests
-    # security
-    ssrf_protection=True,   # block private/loopback IPs
-    injection_guard=True,   # detect prompt-injection in scraped HTML
-    # caching
-    cache="readwrite",      # off | readwrite | readonly | refresh
-    cache_dir=".scrape_cache",
-    cache_ttl=3600,
-    cache_llm=True,         # also cache LLM plan + synthesis responses
-    # proxies
-    proxies=["http://p1:8080", "http://p2:8080"],
-    proxy_rotation="round_robin",  # round_robin | random | sticky
-)
-```
-
-See [DOCS.md](DOCS.md) for the full reference.
-
-## Context manager
-
-```python
-with ScrapeByLLM(render=True) as scraper:
-    result = scraper.get_all_links("https://example.com")
-# browser driver released automatically
-```
-
-## Jac entrypoint
-
-The repo ships a minimal `main.jac` for running the library directly:
+The repo ships a minimal `example.jac` for running the library directly:
 
 ```bash
-jac run main.jac
+jac run example.jac
 ```

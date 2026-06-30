@@ -69,7 +69,7 @@ class ScrapeByLLM:
         self,
         *,
         window: int = 200,
-        max_chars: int = 40_000,
+        max_chars: int = 200_000,
         timeout: int = 20,
         render: bool = False,
         dedup: bool = True,
