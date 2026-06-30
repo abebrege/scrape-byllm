@@ -71,6 +71,11 @@ def via_byllm() -> dict:
         return scraper.get_all(source=URL, query=QUERY)
 
 
+def via_direct_byllm() -> dict:
+    from scrape_byLLM.direct_byllm import fetch_and_extract  # type: ignore[import]
+    return fetch_and_extract(url=URL, query=QUERY, max_chars=MAX_CHARS)
+
+
 MAX_CHARS = 200000
 HTML_SAMPLE_SIZE = 6000
 
@@ -158,6 +163,9 @@ if __name__ == "__main__":
     print("Running byLLM call...")
     byllm_result = via_byllm()
 
+    print("Running direct byLLM call...")
+    direct_byllm_result = via_direct_byllm()
+
     print("Running direct pipeline call...")
     pipeline_result = via_direct_pipeline()
 
@@ -167,6 +175,7 @@ if __name__ == "__main__":
         "model": MODEL,
         "direct_anthropic": direct_result,
         "byllm": byllm_result,
+        "direct_byllm": direct_byllm_result,
         "direct_pipeline": pipeline_result,
     }
 
@@ -175,5 +184,6 @@ if __name__ == "__main__":
 
     print(f"\n--- Direct Anthropic output ---\n{json.dumps(direct_result, indent=2)}\n")
     print(f"--- byLLM output ---\n{json.dumps(byllm_result, indent=2)}\n")
+    print(f"--- Direct byLLM output ---\n{json.dumps(direct_byllm_result, indent=2)}\n")
     print(f"--- Direct pipeline output ---\n{json.dumps(pipeline_result, indent=2)}\n")
     print(f"Results written to {OUTPUT_FILE}")
