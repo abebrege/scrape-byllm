@@ -1,5 +1,7 @@
 # Comparison Results
 
+From the first run of comparison tests, raw results can be found at `/results`
+
 ## Price Disambiguation
 **Category 1 — semantic**  
 **Query:** what is the price of this book?  
