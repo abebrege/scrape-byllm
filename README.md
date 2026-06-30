@@ -2,11 +2,11 @@
 This repository tests the accuracy, cost efficiency, and usability of Meaning-Typed Programming (byLLM) vs manual LLM querying in web scraping. 
 
 Output is analyzed from each of the following methods:
-- Direct LLM call
-- Direct byLLM call
+- Direct LLM query
+- Direct byLLM query
 - Scraper abstractions (regex filtering, pagination handling, crawling, backoffs, injection attacks, etc.) for:
-  - direct LLM call
-  - byLLM call
+  - LLM query
+  - byLLM query
 
 The scraper abstractions build a pipeline for the LLMs to leverage potentially yielding better results. The assistance this pipeline gives, if any, is another question this project will answer.
 
