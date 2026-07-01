@@ -142,6 +142,13 @@ def guarded_compile_query_to_plan(
 
     safe_patterns: list[str] = validate_regex_plan(list(plan.patterns), effective_ctx);
 
+    if not safe_patterns {
+        preset_fallback: str = str(available_regexes.get(pattern, ""));
+        if preset_fallback {
+            safe_patterns = [preset_fallback];
+        }
+    }
+
     plan_dict: dict = {
         "strategy": plan.strategy,
         "patterns": safe_patterns,
